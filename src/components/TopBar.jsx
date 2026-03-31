@@ -25,7 +25,7 @@ export default function TopBar({
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            <span className="text-xl font-semibold tracking-tight sm:text-2xl">SAP</span>
+            <span className="text-xl font-semibold tracking-tight sm:text-2xl">POP</span>
             <span className="hidden h-6 w-px bg-white/30 sm:block" />
             <span className="text-sm font-medium sm:text-lg">Purchase Order Approval</span>
           </div>
@@ -82,8 +82,8 @@ export default function TopBar({
             <UserRound className="h-5 w-5" />
           </div>
           <div className="hidden text-right sm:block">
-            <div className="text-sm font-semibold">Arjun Mehta</div>
-            <div className="text-xs text-sky-100">Manager</div>
+            <div className="text-sm font-semibold">Ananya Rao</div>
+            <div className="text-xs text-sky-100">Director</div>
           </div>
         </div>
       </div>

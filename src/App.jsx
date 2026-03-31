@@ -8,20 +8,15 @@ import RejectModal from "./components/RejectModal";
 import NotificationCenter from "./components/NotificationCenter";
 import NewPurchaseOrderModal from "./components/NewPurchaseOrderModal";
 import ToastRegion from "./components/ToastRegion";
-import { managerLimit, mockPurchaseOrders, rejectionReasons } from "./data/mockData";
-
-const managerRecipient = {
-  name: "Arjun Mehta",
-  role: "Manager"
-};
+import { mockPurchaseOrders, rejectionReasons } from "./data/mockData";
 
 const directorRecipient = {
   name: "Ananya Rao",
   role: "Director"
 };
 
-function getApprovalRecipient(totalAmount) {
-  return totalAmount <= managerLimit ? managerRecipient : directorRecipient;
+function getApprovalRecipient() {
+  return directorRecipient;
 }
 
 function buildNotificationFromOrder(order, unread = true) {
@@ -38,9 +33,7 @@ function buildNotificationFromOrder(order, unread = true) {
     createdAt: order.orderDetails.createdDate,
     unread,
     message:
-      recipient.role === "Manager"
-        ? "New purchase order routed directly to manager approval."
-        : "New purchase order escalated to director because the amount exceeds manager authority."
+      "New purchase order routed directly to director approval."
   };
 }
 
@@ -52,7 +45,7 @@ function getNextPoNumber(orders) {
 function createPurchaseOrderFromUpload(uploadData, existingOrders) {
   const poNumber = getNextPoNumber(existingOrders);
   const createdAt = new Date().toISOString();
-  const authority = getApprovalRecipient(uploadData.totalAmount);
+  const authority = getApprovalRecipient();
   const sanitizedSupplier = uploadData.supplierName.replace(/[^a-z0-9]+/gi, " ").trim();
   const supplierSlug = sanitizedSupplier.toLowerCase().replace(/\s+/g, ".");
 
@@ -73,7 +66,7 @@ function createPurchaseOrderFromUpload(uploadData, existingOrders) {
     orderDetails: {
       createdDate: createdAt,
       purchaseArea: uploadData.purchaseArea,
-      purchaseGroup: authority.role === "Manager" ? "PG-OPS" : "PG-CAP",
+      purchaseGroup: "PG-DIR",
       paymentTerms: "Net 30 Days",
       incoterms: "DAP - Delivered at Place"
     },
@@ -115,16 +108,16 @@ function createPurchaseOrderFromUpload(uploadData, existingOrders) {
   };
 }
 
-function PurchaseOrderRoute({ pendingOrders, onApprove, onAttachFiles, onRejectOpen }) {
+function PurchaseOrderRoute({ visibleOrders, onApprove, onAttachFiles, onRejectOpen }) {
   const { poId } = useParams();
   const navigate = useNavigate();
-  const purchaseOrder = pendingOrders.find((item) => item.id === poId);
+  const purchaseOrder = visibleOrders.find((item) => item.id === poId);
 
   useEffect(() => {
     if (!purchaseOrder) {
-      navigate(pendingOrders[0] ? `/po/${pendingOrders[0].id}` : "/", { replace: true });
+      navigate(visibleOrders[0] ? `/po/${visibleOrders[0].id}` : "/", { replace: true });
     }
-  }, [navigate, pendingOrders, purchaseOrder]);
+  }, [navigate, purchaseOrder, visibleOrders]);
 
   if (!purchaseOrder) {
     return null;
@@ -133,7 +126,6 @@ function PurchaseOrderRoute({ pendingOrders, onApprove, onAttachFiles, onRejectO
   return (
     <PurchaseOrderDetail
       purchaseOrder={purchaseOrder}
-      managerLimit={managerLimit}
       onApprove={onApprove}
       onAttachFiles={onAttachFiles}
       onReject={onRejectOpen}
@@ -152,6 +144,7 @@ export default function App() {
   );
   const [rejectingPoId, setRejectingPoId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("pending");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [toasts, setToasts] = useState([]);
@@ -164,6 +157,9 @@ export default function App() {
   const location = useLocation();
 
   const pendingOrders = purchaseOrders.filter((item) => item.status === "Pending");
+  const approvedOrders = purchaseOrders.filter((item) => item.status === "Approved");
+  const rejectedOrders = purchaseOrders.filter((item) => item.status === "Rejected");
+  const visibleOrders = activeSection === "approved" ? approvedOrders : pendingOrders;
   const rejectingOrder = purchaseOrders.find((item) => item.id === rejectingPoId) ?? null;
   const unreadNotifications = notifications.filter((notification) => notification.unread).length;
   const currentDateLabel = useMemo(
@@ -248,12 +244,16 @@ export default function App() {
     );
 
     if (targetOrder?.status === "Pending") {
+      setActiveSection("pending");
+      navigate(`/po/${poId}`);
+    } else if (targetOrder?.status === "Approved") {
+      setActiveSection("approved");
       navigate(`/po/${poId}`);
     } else {
       showToast(
         "error",
         "Order already processed",
-        `PO ${targetOrder?.poNumber ?? poId} has already moved out of the pending approval queue.`
+        `PO ${targetOrder?.poNumber ?? poId} is no longer available in the director work queues.`
       );
     }
 
@@ -265,15 +265,16 @@ export default function App() {
       ...createPurchaseOrderFromUpload(uploadData, purchaseOrders),
       attachments: createAttachmentRecords(uploadData.attachments ?? [])
     };
-    const recipient = getApprovalRecipient(newOrder.totalAmount);
+    const recipient = getApprovalRecipient();
 
     setPurchaseOrders((currentOrders) => [newOrder, ...currentOrders]);
     setNotifications((currentNotifications) => [buildNotificationFromOrder(newOrder, true), ...currentNotifications]);
     setUploadModalOpen(false);
+    setActiveSection("pending");
     navigate(`/po/${newOrder.id}`);
     setSidebarOpen(false);
     showToast(
-      recipient.role === "Manager" ? "success" : "warning",
+      "success",
       `${recipient.role} notified`,
       `${recipient.name} received a new approval alert for PO ${newOrder.poNumber}.`
     );
@@ -315,10 +316,10 @@ export default function App() {
                   id: `${order.id}-approved`,
                   type: "approved",
                   title: "Approved",
-                  actor: "Arjun Mehta",
-                  role: "Manager",
+                  actor: directorRecipient.name,
+                  role: directorRecipient.role,
                   time: new Date().toISOString(),
-                  note: "Approved within manager authority."
+                  note: "Approved by director authority."
                 }
               ]
             }
@@ -358,8 +359,8 @@ export default function App() {
                   id: `${order.id}-rejected`,
                   type: "rejected",
                   title: "Rejected",
-                  actor: "Arjun Mehta",
-                  role: "Manager",
+                  actor: directorRecipient.name,
+                  role: directorRecipient.role,
                   time: new Date().toISOString(),
                   note: comments,
                   reason
@@ -402,20 +403,24 @@ export default function App() {
 
       <div className="flex h-[calc(100dvh-72px)] flex-col overflow-hidden xl:flex-row">
         <Sidebar
-          orders={pendingOrders}
-          managerLimit={managerLimit}
+          orders={visibleOrders}
+          activeSection={activeSection}
+          pendingCount={pendingOrders.length}
+          approvedCount={approvedOrders.length}
+          rejectedCount={rejectedOrders.length}
+          onSectionChange={setActiveSection}
           open={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
         />
 
         <main className="min-h-0 min-w-0 flex-1">
           <Routes>
-            <Route path="/" element={<EmptyState hasOrders={pendingOrders.length > 0} />} />
+            <Route path="/" element={<EmptyState activeSection={activeSection} hasOrders={visibleOrders.length > 0} />} />
             <Route
               path="/po/:poId"
               element={
                 <PurchaseOrderRoute
-                  pendingOrders={pendingOrders}
+                  visibleOrders={visibleOrders}
                   onApprove={handleApprove}
                   onAttachFiles={handleAttachFiles}
                   onRejectOpen={setRejectingPoId}
@@ -436,7 +441,6 @@ export default function App() {
       />
       <NewPurchaseOrderModal
         open={uploadModalOpen}
-        managerLimit={managerLimit}
         onClose={() => setUploadModalOpen(false)}
         onSubmit={handleUploadPurchaseOrder}
       />

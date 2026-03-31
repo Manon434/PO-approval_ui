@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Building2, CalendarDays, Paperclip, ShieldAlert, ShieldCheck, UploadCloud, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Building2, CalendarDays, Paperclip, ShieldCheck, UploadCloud, X } from "lucide-react";
 import { formatCurrency } from "../utils/formatters";
 
 const purchaseAreaOptions = [
@@ -9,7 +9,7 @@ const purchaseAreaOptions = [
   "PO05 - Capital Projects"
 ];
 
-export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onSubmit }) {
+export default function NewPurchaseOrderModal({ open, onClose, onSubmit }) {
   const [formData, setFormData] = useState({
     supplierName: "",
     location: "",
@@ -40,7 +40,6 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
   }, [open]);
 
   const numericAmount = Number(formData.totalAmount || 0);
-  const authorityRole = numericAmount > managerLimit ? "Director" : "Manager";
   const isValid =
     formData.supplierName.trim() &&
     formData.location.trim() &&
@@ -49,14 +48,6 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
     formData.plant.trim() &&
     formData.deliveryDate &&
     formData.deliveryAddress.trim();
-
-  const authorityLabel = useMemo(
-    () =>
-      numericAmount > 0
-        ? `${authorityRole} will be notified automatically for this upload.`
-        : "Enter the PO amount to preview the approval authority.",
-    [authorityRole, numericAmount]
-  );
 
   if (!open) {
     return null;
@@ -114,7 +105,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
             <UploadCloud className="mt-1 h-5 w-5" />
             <div>
               <h2 className="text-2xl font-semibold">Upload Purchase Order</h2>
-              <p className="text-sm text-sky-100">New uploads trigger manager or director notifications automatically.</p>
+              <p className="text-sm text-sky-100">New uploads trigger director notifications automatically.</p>
             </div>
           </div>
 
@@ -299,22 +290,14 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
               </p>
             </div>
 
-            <div
-              className={`rounded-2xl border px-4 py-4 ${
-                authorityRole === "Manager"
-                  ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                  : "border-amber-200 bg-amber-50 text-amber-800"
-              }`}
-            >
+            <div className="rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sky-900">
               <div className="flex items-start gap-3">
-                {authorityRole === "Manager" ? (
-                  <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
-                ) : (
-                  <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
-                )}
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" />
                 <div>
-                  <p className="font-semibold">{authorityRole} Notification</p>
-                  <p className="mt-1 text-sm leading-6">{authorityLabel}</p>
+                  <p className="font-semibold">Director Notification</p>
+                  <p className="mt-1 text-sm leading-6">
+                    The director will be notified automatically for every new purchase order upload.
+                  </p>
                 </div>
               </div>
             </div>

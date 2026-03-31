@@ -105,7 +105,7 @@ export default function PurchaseOrderAttachments({ poId, attachments, onAttachFi
         <div className="mt-5 rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-5 py-8 text-center">
           <p className="text-base font-semibold text-slate-700">No attachments uploaded yet</p>
           <p className="mt-2 text-sm leading-6 text-slate-500">
-            Upload documents here so the manager, director, or higher authority can review the full PO package.
+            Upload documents here so the director or higher authority can review the full PO package.
           </p>
         </div>
       ) : (

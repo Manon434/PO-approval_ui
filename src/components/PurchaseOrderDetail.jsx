@@ -1,18 +1,4 @@
-import {
-  ArrowLeft,
-  Building2,
-  CalendarDays,
-  CheckCircle2,
-  ClipboardList,
-  IndianRupee,
-  Mail,
-  MapPin,
-  ShieldCheck,
-  Phone,
-  ShieldAlert,
-  Truck,
-  XCircle
-} from "lucide-react";
+import { ArrowLeft, Building2, CalendarDays, CheckCircle2, ClipboardList, Mail, MapPin, ShieldCheck, Phone, Truck, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import ApprovalTimeline from "./ApprovalTimeline";
 import PurchaseOrderAttachments from "./PurchaseOrderAttachments";
@@ -41,53 +27,45 @@ function Field({ label, value, icon: Icon }) {
   );
 }
 
-function ApprovalDecision({ purchaseOrder, managerLimit, onApprove, onReject }) {
-  const withinLimit = purchaseOrder.totalAmount <= managerLimit;
+function ApprovalDecision({ purchaseOrder, onApprove, onReject }) {
+  const isPending = purchaseOrder.status === "Pending";
+  const isApproved = purchaseOrder.status === "Approved";
 
   return (
     <section className="rounded-[24px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[28px] sm:p-6">
       <div className="flex items-center gap-2">
-        <IndianRupee className="h-5 w-5 text-[#0070b1]" />
+        <ShieldCheck className="h-5 w-5 text-[#0070b1]" />
         <h3 className="text-lg font-semibold text-slate-900">Approval Decision</h3>
       </div>
 
       <div className="mt-5 rounded-2xl bg-white/70 p-4">
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4">
-            <span className="text-slate-500">Manager Limit</span>
-            <span className="font-semibold text-slate-900">{formatCurrency(managerLimit)}</span>
+            <span className="text-slate-500">Approval Authority</span>
+            <span className="font-semibold text-slate-900">Director</span>
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="text-slate-500">PO Amount</span>
-            <span className={`font-semibold ${withinLimit ? "text-emerald-600" : "text-amber-600"}`}>
-              {formatCurrency(purchaseOrder.totalAmount)}
-            </span>
+            <span className="font-semibold text-slate-900">{formatCurrency(purchaseOrder.totalAmount)}</span>
           </div>
           <div className="flex items-center justify-between gap-4">
-            <span className="text-slate-500">Authority</span>
-            <span className={`font-semibold ${withinLimit ? "text-emerald-600" : "text-amber-600"}`}>
-              {withinLimit ? "Within Limit" : "Director Approval"}
-            </span>
+            <span className="text-slate-500">Queue Status</span>
+            <span className={`font-semibold ${isApproved ? "text-emerald-600" : "text-amber-600"}`}>{purchaseOrder.status}</span>
           </div>
         </div>
       </div>
 
-      {!withinLimit ? (
-        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-          <div className="flex items-start gap-3">
-            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0" />
-            <p>Approval Required by Director: Amount exceeds Manager authority.</p>
-          </div>
-        </div>
-      ) : null}
+      <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
+        Director approval is required for all purchase orders in this workspace.
+      </div>
 
       <div className="mt-6 space-y-3">
         <button
           type="button"
           onClick={() => onApprove(purchaseOrder.id)}
-          disabled={!withinLimit}
+          disabled={!isPending}
           className={`flex w-full items-center justify-center rounded-2xl px-4 py-3 text-base font-semibold text-white transition ${
-            withinLimit ? "bg-emerald-600 hover:bg-emerald-700" : "cursor-not-allowed bg-slate-300"
+            isPending ? "bg-emerald-600 hover:bg-emerald-700" : "cursor-not-allowed bg-slate-300"
           }`}
         >
           <CheckCircle2 className="mr-2 h-5 w-5" />
@@ -96,7 +74,10 @@ function ApprovalDecision({ purchaseOrder, managerLimit, onApprove, onReject }) 
         <button
           type="button"
           onClick={() => onReject(purchaseOrder.id)}
-          className="flex w-full items-center justify-center rounded-2xl bg-red-600 px-4 py-3 text-base font-semibold text-white transition hover:bg-red-700"
+          disabled={!isPending}
+          className={`flex w-full items-center justify-center rounded-2xl px-4 py-3 text-base font-semibold text-white transition ${
+            isPending ? "bg-red-600 hover:bg-red-700" : "cursor-not-allowed bg-slate-300"
+          }`}
         >
           <XCircle className="mr-2 h-5 w-5" />
           Reject
@@ -108,7 +89,6 @@ function ApprovalDecision({ purchaseOrder, managerLimit, onApprove, onReject }) 
 
 export default function PurchaseOrderDetail({
   purchaseOrder,
-  managerLimit,
   onApprove,
   onReject,
   onAttachFiles,
@@ -170,17 +150,11 @@ export default function PurchaseOrderDetail({
           </div>
           <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4 shadow-panel">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
-              {purchaseOrder.totalAmount <= managerLimit ? (
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              ) : (
-                <ShieldAlert className="h-4 w-4 text-amber-600" />
-              )}
+              <ShieldCheck className="h-4 w-4 text-[#0070b1]" />
               Authority
             </div>
-            <p className="mt-3 text-lg font-semibold text-slate-900">
-              {purchaseOrder.totalAmount <= managerLimit ? "Manager can approve" : "Director escalation required"}
-            </p>
-            <p className="mt-1 text-sm text-slate-500">Limit set at {formatCurrency(managerLimit)} for current approver.</p>
+            <p className="mt-3 text-lg font-semibold text-slate-900">Director review required</p>
+            <p className="mt-1 text-sm text-slate-500">Approve or reject actions are reserved for the director only.</p>
           </div>
         </section>
 
@@ -316,7 +290,6 @@ export default function PurchaseOrderDetail({
           <ApprovalTimeline entries={purchaseOrder.approvalHistory} />
           <ApprovalDecision
             purchaseOrder={purchaseOrder}
-            managerLimit={managerLimit}
             onApprove={onApprove}
             onReject={onReject}
           />

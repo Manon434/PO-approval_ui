@@ -1,5 +1,3 @@
-export const managerLimit = 500000;
-
 export const rejectionReasons = [
   "Budget Exceeded",
   "Incorrect Pricing",
@@ -326,10 +324,7 @@ export const mockPurchaseOrders = rawPurchaseOrderDataset.map((purchaseOrder) =>
         actor: `Org ${purchaseOrder.org} Buyer`,
         role: `Purchase Group ${purchaseOrder.group}`,
         time: toIsoDate(purchaseOrder.date, "09", "30"),
-        note:
-          purchaseOrder.amount <= managerLimit
-            ? "Submitted to manager approval queue."
-            : "Submitted to director escalation queue because the amount exceeds manager authority."
+        note: "Submitted to director approval queue."
       }
     ],
     attachments: []

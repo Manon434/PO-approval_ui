@@ -2,17 +2,17 @@ import { BellRing, CheckCheck, ChevronRight, ShieldAlert, ShieldCheck, X } from 
 import { formatCurrency, formatDateTime } from "../utils/formatters";
 
 function RecipientBadge({ role }) {
-  const isManager = role === "Manager";
+  const isDirector = role === "Director";
 
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${
-        isManager
-          ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-          : "border-amber-300 bg-amber-50 text-amber-700"
+        isDirector
+          ? "border-amber-300 bg-amber-50 text-amber-700"
+          : "border-slate-300 bg-slate-100 text-slate-700"
       }`}
     >
-      {isManager ? <ShieldCheck className="h-3.5 w-3.5" /> : <ShieldAlert className="h-3.5 w-3.5" />}
+      {isDirector ? <ShieldAlert className="h-3.5 w-3.5" /> : <ShieldCheck className="h-3.5 w-3.5" />}
       {role}
     </span>
   );
@@ -44,7 +44,7 @@ export default function NotificationCenter({
                 <h2 className="text-xl font-semibold text-slate-900">Authority Notifications</h2>
               </div>
               <p className="mt-2 text-sm leading-6 text-slate-500">
-                {unreadCount} unread alerts for manager and director approval routing.
+                {unreadCount} unread alerts for director approval routing.
               </p>
             </div>
             <button
@@ -70,7 +70,7 @@ export default function NotificationCenter({
         <div className="space-y-4 p-4 sm:p-5">
           {notifications.length === 0 ? (
             <div className="rounded-[24px] border border-slate-200 bg-slate-50 px-4 py-5 text-sm leading-6 text-slate-500">
-              No workflow notifications yet. New purchase order uploads will notify the correct authority here.
+              No workflow notifications yet. New purchase order uploads will notify the director here.
             </div>
           ) : (
             notifications.map((notification) => (

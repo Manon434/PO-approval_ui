@@ -81,7 +81,7 @@ export default function RejectModal({ open, poNumber, reasons, onClose, onConfir
 
           <div>
             <label className="mb-2 block text-sm font-semibold uppercase tracking-wide text-slate-600">
-              Manager Comments <span className="text-red-600">*</span>
+              Director Comments <span className="text-red-600">*</span>
             </label>
             <textarea
               value={comments}
@@ -95,7 +95,7 @@ export default function RejectModal({ open, poNumber, reasons, onClose, onConfir
               }`}
             />
             <div className="mt-2 flex items-center justify-between">
-              {commentsError ? <p className="text-sm text-red-600">Manager comments are required.</p> : <span />}
+              {commentsError ? <p className="text-sm text-red-600">Director comments are required.</p> : <span />}
               <p className="text-sm text-slate-400">{comments.length} chars</p>
             </div>
           </div>
