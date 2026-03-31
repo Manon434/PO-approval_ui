@@ -19,10 +19,10 @@ import PurchaseOrderAttachments from "./PurchaseOrderAttachments";
 
 function InfoCard({ title, icon: Icon, children }) {
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-[#f4f6f8] p-6 shadow-panel">
+    <section className="rounded-[24px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[28px] sm:p-6">
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5 text-[#0070b1]" />
-        <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+        <h3 className="text-base font-semibold text-slate-900 sm:text-lg">{title}</h3>
       </div>
       <div className="mt-5 space-y-5">{children}</div>
     </section>
@@ -35,7 +35,7 @@ function Field({ label, value, icon: Icon }) {
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">{label}</p>
       <div className="mt-2 flex items-start gap-2 text-slate-900">
         {Icon ? <Icon className="mt-1 h-4 w-4 shrink-0 text-slate-400" /> : null}
-        <span className="text-base leading-6">{value}</span>
+        <span className="text-sm leading-6 sm:text-base">{value}</span>
       </div>
     </div>
   );
@@ -45,13 +45,13 @@ function ApprovalDecision({ purchaseOrder, managerLimit, onApprove, onReject }) 
   const withinLimit = purchaseOrder.totalAmount <= managerLimit;
 
   return (
-    <section className="rounded-[28px] border border-slate-200 bg-[#f4f6f8] p-6 shadow-panel">
+    <section className="rounded-[24px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[28px] sm:p-6">
       <div className="flex items-center gap-2">
         <IndianRupee className="h-5 w-5 text-[#0070b1]" />
         <h3 className="text-lg font-semibold text-slate-900">Approval Decision</h3>
       </div>
 
-      <div className="mt-5 rounded-2xl bg-[#f4f6f8] p-4">
+      <div className="mt-5 rounded-2xl bg-white/70 p-4">
         <div className="space-y-3 text-sm">
           <div className="flex items-center justify-between gap-4">
             <span className="text-slate-500">Manager Limit</span>
@@ -116,7 +116,7 @@ export default function PurchaseOrderDetail({
 }) {
   return (
     <div className="h-full overflow-y-auto">
-      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur xl:px-8">
+      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 sm:py-5 xl:px-8">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div>
             <button
@@ -128,7 +128,9 @@ export default function PurchaseOrderDetail({
               Back
             </button>
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-3xl font-semibold tracking-tight text-slate-900">Purchase Order #{purchaseOrder.poNumber}</h2>
+              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                Purchase Order #{purchaseOrder.poNumber}
+              </h2>
               <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
                 {purchaseOrder.status}
               </span>
@@ -138,17 +140,17 @@ export default function PurchaseOrderDetail({
             </p>
           </div>
 
-          <div className="rounded-[24px] bg-[#f4f6f8] px-6 py-4 text-right">
+          <div className="rounded-[24px] bg-[#f4f6f8] px-5 py-4 text-left sm:px-6 sm:text-right">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Total Value</p>
-            <p className="mt-1 text-5xl font-semibold tracking-tight text-slate-950">
+            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
               {formatCurrency(purchaseOrder.totalAmount)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-6 px-6 py-6 xl:px-8 xl:py-8">
-        <section className="grid gap-4 md:grid-cols-3">
+      <div className="space-y-5 px-4 py-5 sm:space-y-6 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4 shadow-panel">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
               <ClipboardList className="h-4 w-4 text-[#0070b1]" />
@@ -182,7 +184,7 @@ export default function PurchaseOrderDetail({
           </div>
         </section>
 
-        <div className="grid gap-6 xl:grid-cols-3">
+        <div className="grid gap-5 xl:grid-cols-3">
           <InfoCard title="Vendor Information" icon={Building2}>
             <Field label="Vendor Name" value={purchaseOrder.supplierName} />
             <Field label="Vendor Code" value={purchaseOrder.vendorInfo.vendorCode} />
@@ -209,16 +211,57 @@ export default function PurchaseOrderDetail({
           </InfoCard>
         </div>
 
-        <section className="overflow-hidden rounded-[28px] border border-slate-200 bg-[#f4f6f8] shadow-panel">
-          <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+        <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-[#f4f6f8] shadow-panel sm:rounded-[28px]">
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-[#0070b1]" />
-              <h3 className="text-lg font-semibold text-slate-900">Line Items</h3>
+              <h3 className="text-base font-semibold text-slate-900 sm:text-lg">Line Items</h3>
             </div>
             <p className="text-sm text-slate-400">{purchaseOrder.lineItems.length} items</p>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="space-y-3 p-4 md:hidden">
+            {purchaseOrder.lineItems.map((item) => (
+              <article key={item.itemNumber} className="rounded-[22px] border border-slate-200 bg-white p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Item #{item.itemNumber}</p>
+                    <h4 className="mt-2 text-base font-semibold text-slate-900">{item.description}</h4>
+                  </div>
+                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-[#0070b1]">
+                    {item.material}
+                  </span>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-2xl bg-slate-50 px-3 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Qty</p>
+                    <p className="mt-1 font-semibold text-slate-900">{item.quantity.toLocaleString("en-IN")} {item.unit}</p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 px-3 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Unit Price</p>
+                    <p className="mt-1 font-semibold text-slate-900">{formatCurrency(item.price)}</p>
+                  </div>
+                </div>
+
+                <div className="mt-4 rounded-2xl bg-[#f8fafc] px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Line Total</p>
+                  <p className="mt-1 text-xl font-semibold tracking-tight text-slate-950">
+                    {formatCurrency(item.quantity * item.price)}
+                  </p>
+                </div>
+              </article>
+            ))}
+
+            <div className="rounded-[22px] border border-slate-200 bg-white px-4 py-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Grand Total</p>
+              <p className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">
+                {formatCurrency(purchaseOrder.totalAmount)}
+              </p>
+            </div>
+          </div>
+
+          <div className="hidden overflow-x-auto md:block">
             <table className="min-w-full text-left">
               <thead className="bg-[#f8fafc] text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">
                 <tr>
@@ -269,7 +312,7 @@ export default function PurchaseOrderDetail({
           onAttachFiles={onAttachFiles}
         />
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">
           <ApprovalTimeline entries={purchaseOrder.approvalHistory} />
           <ApprovalDecision
             purchaseOrder={purchaseOrder}

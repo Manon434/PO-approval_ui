@@ -107,9 +107,9 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-3xl overflow-hidden rounded-[30px] bg-white shadow-2xl shadow-slate-950/20">
-        <div className="flex items-start justify-between bg-[#0070b1] px-6 py-5 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-2 sm:p-4 backdrop-blur-sm">
+      <div className="flex max-h-[95dvh] w-full max-w-3xl flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl shadow-slate-950/20 sm:rounded-[30px]">
+        <div className="flex items-start justify-between bg-[#0070b1] px-4 py-4 text-white sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
             <UploadCloud className="mt-1 h-5 w-5" />
             <div>
@@ -128,7 +128,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
           </button>
         </div>
 
-        <div className="grid gap-6 px-6 py-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
+        <div className="grid flex-1 gap-5 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6 lg:grid-cols-[minmax(0,1.5fr)_minmax(280px,0.9fr)]">
           <div className="space-y-5">
             <div className="grid gap-5 md:grid-cols-2">
               <div>
@@ -251,7 +251,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                    className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 sm:w-auto"
                   >
                     <Paperclip className="h-4 w-4" />
                     Add files
@@ -332,7 +332,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
           </div>
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:justify-end sm:px-6 sm:py-5">
           <button
             type="button"
             onClick={onClose}

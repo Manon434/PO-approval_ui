@@ -10,8 +10,8 @@ export default function TopBar({
   currentDateLabel
 }) {
   return (
-    <header className="flex min-h-[72px] items-center justify-between gap-4 bg-[#0070b1] px-4 py-3 text-white shadow-lg shadow-sky-900/20 md:px-5">
-      <div className="flex items-center gap-3">
+    <header className="flex min-h-[72px] items-center justify-between gap-3 bg-[#0070b1] px-3 py-3 text-white shadow-lg shadow-sky-900/20 sm:px-4 md:px-5">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onMenuOpen}
@@ -20,28 +20,28 @@ export default function TopBar({
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 sm:h-10 sm:w-10">
           <ShoppingCart className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="text-2xl font-semibold tracking-tight">SAP</span>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            <span className="text-xl font-semibold tracking-tight sm:text-2xl">SAP</span>
             <span className="hidden h-6 w-px bg-white/30 sm:block" />
-            <span className="text-base font-medium sm:text-lg">Purchase Order Approval</span>
+            <span className="text-sm font-medium sm:text-lg">Purchase Order Approval</span>
           </div>
-          <div className="mt-1 flex flex-wrap items-center gap-3 text-sm text-sky-100">
-            <p>{pendingCount} pending approvals in queue</p>
+          <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-sky-100 sm:gap-3 sm:text-sm">
+            <p>{pendingCount} pending approvals</p>
             <span className="hidden h-4 w-px bg-white/20 sm:block" />
             <p className="hidden sm:block">{currentDateLabel}</p>
           </div>
         </div>
       </div>
 
-      <div className="flex items-center gap-3 md:gap-6">
+      <div className="flex items-center gap-2 sm:gap-3 md:gap-6">
         <button
           type="button"
           onClick={onOpenUpload}
-          className="inline-flex items-center gap-2 rounded-2xl bg-white px-4 py-2.5 text-sm font-semibold text-[#0070b1] transition hover:bg-sky-50"
+          className="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2 text-sm font-semibold text-[#0070b1] transition hover:bg-sky-50 sm:px-4 sm:py-2.5"
         >
           <Upload className="h-4 w-4" />
           <span className="hidden sm:inline">Upload PO</span>
@@ -77,8 +77,8 @@ export default function TopBar({
           ) : null}
         </button>
 
-        <div className="flex items-center gap-3 rounded-2xl bg-white/10 px-3 py-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/15">
+        <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-2 py-2 sm:gap-3 sm:px-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 sm:h-10 sm:w-10">
             <UserRound className="h-5 w-5" />
           </div>
           <div className="hidden text-right sm:block">

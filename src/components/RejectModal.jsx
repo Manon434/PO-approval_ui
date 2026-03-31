@@ -34,9 +34,9 @@ export default function RejectModal({ open, poNumber, reasons, onClose, onConfir
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-xl overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-slate-950/25">
-        <div className="flex items-start justify-between bg-red-600 px-6 py-5 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-2 sm:p-4 backdrop-blur-sm">
+      <div className="flex max-h-[92dvh] w-full max-w-xl flex-col overflow-hidden rounded-[24px] bg-white shadow-2xl shadow-slate-950/25 sm:rounded-[28px]">
+        <div className="flex items-start justify-between bg-red-600 px-4 py-4 text-white sm:px-6 sm:py-5">
           <div className="flex items-start gap-3">
             <AlertCircle className="mt-1 h-5 w-5" />
             <div>
@@ -55,7 +55,7 @@ export default function RejectModal({ open, poNumber, reasons, onClose, onConfir
           </button>
         </div>
 
-        <div className="space-y-5 px-6 py-6">
+        <div className="flex-1 space-y-5 overflow-y-auto px-4 py-4 sm:px-6 sm:py-6">
           <div>
             <label className="mb-2 block text-sm font-semibold uppercase tracking-wide text-slate-600">
               Rejection Reason <span className="text-red-600">*</span>
@@ -106,7 +106,7 @@ export default function RejectModal({ open, poNumber, reasons, onClose, onConfir
           </div>
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-6 py-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-slate-200 bg-slate-50 px-4 py-4 sm:flex-row sm:justify-end sm:px-6 sm:py-5">
           <button
             type="button"
             onClick={onClose}

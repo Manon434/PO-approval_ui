@@ -48,15 +48,17 @@ export default function Sidebar({ orders, managerLimit, open, onClose }) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(92vw,380px)] max-w-full flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:h-full xl:w-[380px] xl:max-w-[380px] xl:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[min(100vw,380px)] max-w-full flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:h-full xl:w-[380px] xl:max-w-[380px] xl:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="border-b border-slate-200 bg-[#f8fafc] px-5 py-6">
+        <div className="border-b border-slate-200 bg-[#f8fafc] px-4 py-5 sm:px-5 sm:py-6">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Pending Approvals</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">{orders.length} Purchase Orders</h1>
+              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+                {orders.length} Purchase Orders
+              </h1>
             </div>
             <button
               type="button"
@@ -67,7 +69,7 @@ export default function Sidebar({ orders, managerLimit, open, onClose }) {
               <X className="h-4 w-4" />
             </button>
           </div>
-          <div className="mt-5 grid grid-cols-3 gap-3">
+          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
             <SummaryTile label="Pending" value={orders.length} tone="neutral" />
             <SummaryTile label="Manager" value={withinLimitCount} tone="success" />
             <SummaryTile label="Director" value={directorCount} tone="warning" />
@@ -76,7 +78,7 @@ export default function Sidebar({ orders, managerLimit, open, onClose }) {
 
         <div className="flex-1 overflow-y-auto">
           {orders.length === 0 ? (
-            <div className="px-5 py-8 text-sm leading-6 text-slate-500">
+            <div className="px-4 py-8 text-sm leading-6 text-slate-500 sm:px-5">
               There are no pending purchase orders to review.
             </div>
           ) : (
@@ -86,7 +88,7 @@ export default function Sidebar({ orders, managerLimit, open, onClose }) {
                 to={`/po/${order.id}`}
                 onClick={onClose}
                 className={({ isActive }) =>
-                  `group block border-b border-slate-100 px-5 py-5 transition ${
+                  `group block border-b border-slate-100 px-4 py-4 transition sm:px-5 sm:py-5 ${
                     isActive ? "bg-sky-50" : "hover:bg-slate-100/90"
                   }`
                 }
@@ -98,13 +100,13 @@ export default function Sidebar({ orders, managerLimit, open, onClose }) {
                       {order.poNumber}
                     </div>
                     <div>
-                      <h2 className="text-xl font-semibold text-slate-900">{order.supplierName}</h2>
+                      <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">{order.supplierName}</h2>
                       <p className="text-sm text-slate-500">{order.location}</p>
                     </div>
-                    <div className="text-[30px] font-semibold leading-none tracking-tight text-slate-950">
+                    <div className="text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
                       {formatCurrency(order.totalAmount)}
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       <AuthorityBadge totalAmount={order.totalAmount} managerLimit={managerLimit} />
                       <span className="text-xs text-slate-400">{formatDate(order.orderDetails.createdDate)}</span>
                     </div>

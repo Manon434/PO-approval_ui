@@ -400,7 +400,7 @@ export default function App() {
         currentDateLabel={currentDateLabel}
       />
 
-      <div className="flex h-[calc(100vh-72px)] flex-col overflow-hidden xl:flex-row">
+      <div className="flex h-[calc(100dvh-72px)] flex-col overflow-hidden xl:flex-row">
         <Sidebar
           orders={pendingOrders}
           managerLimit={managerLimit}
