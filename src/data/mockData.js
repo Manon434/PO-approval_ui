@@ -8,333 +8,330 @@ export const rejectionReasons = [
   "Vendor Compliance Issue"
 ];
 
-export const mockPurchaseOrders = [
+const rawPurchaseOrderDataset = [
   {
-    id: "4500012345",
-    poNumber: "4500012345",
-    supplierName: "Tata Motors Limited",
-    location: "Mumbai, Maharashtra",
-    totalAmount: 485000,
-    status: "Pending",
-    vendorInfo: {
-      vendorCode: "VEND-0001",
-      gstNumber: "27AAACT2727Q1ZV",
-      address: "Bombay House Annexe, Colaba, Mumbai, Maharashtra",
-      contact: "+91 22 6665 8282",
-      email: "procurement@tatamotors.com"
-    },
-    orderDetails: {
-      createdDate: "2026-03-25T09:00:00+05:30",
-      purchaseArea: "PO01 - Corporate Procurement",
-      purchaseGroup: "PG-AUTO",
-      paymentTerms: "Net 30 Days",
-      incoterms: "DAP - Delivered at Place"
-    },
-    deliveryInfo: {
-      plant: "PL01 - Pune Assembly",
-      deliveryDate: "2026-04-09T10:30:00+05:30",
-      deliveryAddress: "Pimpri Industrial Area, Pune - 411018"
-    },
-    lineItems: [
+    id: "0121000192",
+    date: "2022-04-13",
+    org: "2100",
+    group: "163",
+    status: "PENDING",
+    amount: 1106655,
+    items: [
       {
-        itemNumber: "010",
-        material: "MAT-CHS-212",
-        description: "Hydraulic Chassis Mount Kit",
-        quantity: 25,
-        unit: "EA",
-        price: 8600
-      },
-      {
-        itemNumber: "020",
-        material: "MAT-BRG-415",
-        description: "Industrial Bearing Assembly",
-        quantity: 50,
-        unit: "EA",
-        price: 5400
-      }
-    ],
-    approvalHistory: [
-      {
-        id: "tat-1",
-        type: "created",
-        title: "Created",
-        actor: "Aarav Kulkarni",
-        role: "Procurement Analyst",
-        time: "2026-03-25T09:00:00+05:30",
-        note: "Rush requirement for chassis maintenance stock."
-      },
-      {
-        id: "tat-2",
-        type: "submitted",
-        title: "Submitted for Approval",
-        actor: "Aarav Kulkarni",
-        role: "Procurement Analyst",
-        time: "2026-03-25T09:20:00+05:30"
+        itemNo: 10,
+        description: "Cotton J34 RG",
+        material: "RDCOJRGRHR011",
+        qty: 5500,
+        unit: "KG",
+        price: 201.21,
+        total: 1106655
       }
     ]
   },
   {
-    id: "4500012346",
-    poNumber: "4500012346",
-    supplierName: "Reliance Industries Limited",
-    location: "Mumbai, Maharashtra",
-    totalAmount: 1250000,
-    status: "Pending",
-    vendorInfo: {
-      vendorCode: "VEND-0002",
-      gstNumber: "27AAACR5055K1Z1",
-      address: "Maker Chambers IV, Nariman Point, Mumbai, Maharashtra",
-      contact: "+91 22 3555 5000",
-      email: "vendor.support@ril.com"
-    },
-    orderDetails: {
-      createdDate: "2026-03-26T10:00:00+05:30",
-      purchaseArea: "PO02 - Energy Sourcing",
-      purchaseGroup: "PG-OIL",
-      paymentTerms: "Net 45 Days",
-      incoterms: "FOB - Free on Board"
-    },
-    deliveryInfo: {
-      plant: "PL08 - Jamnagar Refinery",
-      deliveryDate: "2026-04-15T08:00:00+05:30",
-      deliveryAddress: "Village Meghpar, Jamnagar, Gujarat - 361140"
-    },
-    lineItems: [
+    id: "0121000197",
+    date: "2022-06-07",
+    org: "2100",
+    group: "164",
+    status: "PENDING",
+    amount: 4000000,
+    items: [
       {
-        itemNumber: "010",
-        material: "MAT-LUB-992",
-        description: "Refinery Grade Lubricant Drums",
-        quantity: 120,
-        unit: "DR",
-        price: 6500
-      },
-      {
-        itemNumber: "020",
-        material: "MAT-SFT-450",
-        description: "High Pressure Safety Valves",
-        quantity: 40,
-        unit: "EA",
-        price: 11750
-      }
-    ],
-    approvalHistory: [
-      {
-        id: "ril-1",
-        type: "created",
-        title: "Created",
-        actor: "Nisha Shah",
-        role: "Sourcing Specialist",
-        time: "2026-03-26T10:00:00+05:30",
-        note: "Annual maintenance shutdown procurement package."
-      },
-      {
-        id: "ril-2",
-        type: "submitted",
-        title: "Submitted for Approval",
-        actor: "Nisha Shah",
-        role: "Sourcing Specialist",
-        time: "2026-03-26T10:30:00+05:30"
+        itemNo: 10,
+        description: "Cotton BCI SG",
+        material: "RDCOBSGRPB001",
+        qty: 16000,
+        unit: "KG",
+        price: 250,
+        total: 4000000
       }
     ]
   },
   {
-    id: "4500012347",
-    poNumber: "4500012347",
-    supplierName: "Infosys Limited",
-    location: "Bengaluru, Karnataka",
-    totalAmount: 350000,
-    status: "Pending",
-    vendorInfo: {
-      vendorCode: "VEND-0003",
-      gstNumber: "29AAACI1543N1Z4",
-      address: "Electronics City Phase 1, Bengaluru, Karnataka",
-      contact: "+91 80 2852 0261",
-      email: "enterprise.sales@infosys.com"
-    },
-    orderDetails: {
-      createdDate: "2026-03-27T11:15:00+05:30",
-      purchaseArea: "PO03 - IT Services",
-      purchaseGroup: "PG-ITS",
-      paymentTerms: "Net 15 Days",
-      incoterms: "DDP - Delivered Duty Paid"
-    },
-    deliveryInfo: {
-      plant: "PL12 - Bengaluru Tech Hub",
-      deliveryDate: "2026-04-03T09:30:00+05:30",
-      deliveryAddress: "Outer Ring Road, Bellandur, Bengaluru - 560103"
-    },
-    lineItems: [
+    id: "0221000184",
+    date: "2022-04-13",
+    org: "2100",
+    group: "107",
+    status: "PENDING",
+    amount: 800,
+    items: [
       {
-        itemNumber: "010",
-        material: "MAT-SVC-121",
-        description: "Application Support Retainer",
-        quantity: 1,
-        unit: "LOT",
-        price: 210000
+        itemNo: 10,
+        description: "BALL BEARING",
+        material: "GSBGBB000017362",
+        qty: 2,
+        unit: "ST",
+        price: 200,
+        total: 400
       },
       {
-        itemNumber: "020",
-        material: "MAT-LIC-334",
-        description: "Cloud Monitoring License Pack",
-        quantity: 20,
-        unit: "EA",
-        price: 7000
-      }
-    ],
-    approvalHistory: [
-      {
-        id: "inf-1",
-        type: "created",
-        title: "Created",
-        actor: "Meera Iyer",
-        role: "IT Procurement Lead",
-        time: "2026-03-27T11:15:00+05:30",
-        note: "Quarterly support renewal for enterprise monitoring stack."
-      },
-      {
-        id: "inf-2",
-        type: "submitted",
-        title: "Submitted for Approval",
-        actor: "Meera Iyer",
-        role: "IT Procurement Lead",
-        time: "2026-03-27T11:40:00+05:30"
+        itemNo: 20,
+        description: "BALL BEARING",
+        material: "GSBGBB000017362",
+        qty: 2,
+        unit: "ST",
+        price: 200,
+        total: 400
       }
     ]
   },
   {
-    id: "4500012348",
-    poNumber: "4500012348",
-    supplierName: "Mahindra & Mahindra Ltd",
-    location: "Mumbai, Maharashtra",
-    totalAmount: 50000,
-    status: "Pending",
-    vendorInfo: {
-      vendorCode: "VEND-0004",
-      gstNumber: "27AABCM9407G1ZP",
-      address: "Mahindra Towers, Dr. G.M. Bhosale Marg, Mumbai, Maharashtra",
-      contact: "+91 22 2490 1441",
-      email: "vendor.mgmt@mahindra.com"
-    },
-    orderDetails: {
-      createdDate: "2026-03-28T09:00:00+05:30",
-      purchaseArea: "PO01 - India Procurement",
-      purchaseGroup: "PG-MFG",
-      paymentTerms: "Net 15 Days",
-      incoterms: "DAP - Delivered at Place"
-    },
-    deliveryInfo: {
-      plant: "PL02 - Nashik Plant",
-      deliveryDate: "2026-04-05T11:00:00+05:30",
-      deliveryAddress: "Nashik Plant, Gonde, Nashik - 422403"
-    },
-    lineItems: [
+    id: "0221000185",
+    date: "2022-04-13",
+    org: "2100",
+    group: "107",
+    status: "PENDING",
+    amount: 100000,
+    items: [
       {
-        itemNumber: "010",
-        material: "MAT-SPR-301",
-        description: "Helical Compression Spring - 12mm",
-        quantity: 1000,
-        unit: "EA",
-        price: 30
-      },
-      {
-        itemNumber: "020",
-        material: "MAT-BSH-088",
-        description: "Bronze Bush Bearing - 25x30x20",
-        quantity: 200,
-        unit: "EA",
-        price: 100
-      }
-    ],
-    approvalHistory: [
-      {
-        id: "mah-1",
-        type: "created",
-        title: "Created",
-        actor: "Sunita Patil",
-        role: "Production Planner",
-        time: "2026-03-28T09:00:00+05:30",
-        note: "Urgent requirement for assembly line."
-      },
-      {
-        id: "mah-2",
-        type: "submitted",
-        title: "Submitted for Approval",
-        actor: "Sunita Patil",
-        role: "Production Planner",
-        time: "2026-03-28T09:30:00+05:30"
+        itemNo: 10,
+        description: "BALL BEARING",
+        material: "GSBGBB000017362",
+        qty: 500,
+        unit: "ST",
+        price: 200,
+        total: 100000
       }
     ]
   },
   {
-    id: "4500012349",
-    poNumber: "4500012349",
-    supplierName: "Larsen & Toubro Limited",
-    location: "Mumbai, Maharashtra",
-    totalAmount: 1500000,
-    status: "Pending",
-    vendorInfo: {
-      vendorCode: "VEND-0005",
-      gstNumber: "27AAACL0140P1ZL",
-      address: "L&T House, Ballard Estate, Mumbai, Maharashtra",
-      contact: "+91 22 6752 5656",
-      email: "projects.procurement@larsentoubro.com"
-    },
-    orderDetails: {
-      createdDate: "2026-03-29T14:10:00+05:30",
-      purchaseArea: "PO05 - Capital Projects",
-      purchaseGroup: "PG-CAP",
-      paymentTerms: "Net 60 Days",
-      incoterms: "CIP - Carriage and Insurance Paid"
-    },
-    deliveryInfo: {
-      plant: "PL19 - Hazira Heavy Engineering",
-      deliveryDate: "2026-04-18T09:00:00+05:30",
-      deliveryAddress: "Hazira Manufacturing Complex, Surat - 394270"
-    },
-    lineItems: [
+    id: "0221000189",
+    date: "2022-05-26",
+    org: "2100",
+    group: "107",
+    status: "PENDING",
+    amount: 2000,
+    items: [
       {
-        itemNumber: "010",
-        material: "MAT-CTL-610",
-        description: "Industrial Control Panel Assembly",
-        quantity: 10,
-        unit: "EA",
-        price: 55000
-      },
-      {
-        itemNumber: "020",
-        material: "MAT-CBL-190",
-        description: "High Load Armoured Cable Drum",
-        quantity: 20,
-        unit: "DR",
-        price: 22500
-      },
-      {
-        itemNumber: "030",
-        material: "MAT-MTR-220",
-        description: "Variable Frequency Drive Motor",
-        quantity: 2,
-        unit: "EA",
-        price: 250000
+        itemNo: 10,
+        description: "BALL BEARING",
+        material: "GSBGBB000017362",
+        qty: 1,
+        unit: "ST",
+        price: 2000,
+        total: 2000
       }
-    ],
-    approvalHistory: [
+    ]
+  },
+  {
+    id: "0221000259",
+    date: "2025-05-17",
+    org: "2100",
+    group: "164",
+    status: "PENDING",
+    amount: 1000,
+    items: [
       {
-        id: "lt-1",
-        type: "created",
-        title: "Created",
-        actor: "Raghav Menon",
-        role: "Project Buyer",
-        time: "2026-03-29T14:10:00+05:30",
-        note: "Critical capital equipment package for expansion project."
+        itemNo: 10,
+        description: "Pur YRN RF 1/15 COMBED HOS 100% Cot.",
+        material: "PRCCH0115XXXXXX00",
+        qty: 1000,
+        unit: "KG",
+        price: 1,
+        total: 1000
+      }
+    ]
+  },
+  {
+    id: "0231000039",
+    date: "2022-06-10",
+    org: "3100",
+    group: "164",
+    status: "PENDING",
+    amount: 10000,
+    items: [
+      {
+        itemNo: 10,
+        description: "420 DIA FAN (2.2 KW)",
+        material: "GSELEA000018960",
+        qty: 100,
+        unit: "NOS",
+        price: 100,
+        total: 10000
+      }
+    ]
+  },
+  {
+    id: "0821000055",
+    date: "2022-06-08",
+    org: "2100",
+    group: "183",
+    status: "PENDING",
+    amount: 164450,
+    items: [
+      {
+        itemNo: 10,
+        description: "Pur Yarn RF 02/62 RT",
+        material: "PRRKH0262XRTXXX00",
+        qty: 1000,
+        unit: "KG",
+        price: 65,
+        total: 65000
       },
       {
-        id: "lt-2",
-        type: "submitted",
-        title: "Submitted for Approval",
-        actor: "Raghav Menon",
-        role: "Project Buyer",
-        time: "2026-03-29T14:45:00+05:30"
+        itemNo: 20,
+        description: "Pur Yarn RF 02/52 RT",
+        material: "PRRKH0252XRTXXX00",
+        qty: 1500,
+        unit: "KG",
+        price: 65,
+        total: 97500
+      },
+      {
+        itemNo: 30,
+        description: "Pur Yarn RF 03/62 RT",
+        material: "PRRKH0362XRT21500",
+        qty: 30,
+        unit: "KG",
+        price: 65,
+        total: 1950
+      }
+    ]
+  },
+  {
+    id: "9100000006",
+    date: "2022-06-01",
+    org: "2100",
+    group: "183",
+    status: "PENDING",
+    amount: 101365,
+    items: [
+      {
+        itemNo: 10,
+        description: "2/50 REV 2000M",
+        material: "A5028",
+        qty: 500,
+        unit: "KG",
+        price: 202.73,
+        total: 101365
       }
     ]
   }
 ];
+
+const organizationMeta = {
+  "2100": {
+    location: "Org 2100",
+    purchaseArea: "PO 2100 - Central Procurement",
+    plant: "PL2100 - Main Operations",
+    address: "Organization 2100 Central Stores"
+  },
+  "3100": {
+    location: "Org 3100",
+    purchaseArea: "PO 3100 - Plant Procurement",
+    plant: "PL3100 - Plant Operations",
+    address: "Organization 3100 Plant Warehouse"
+  }
+};
+
+const groupMeta = {
+  "107": {
+    supplierName: "Vendor Group 107",
+    purchaseGroup: "PG-107",
+    paymentTerms: "Net 15 Days"
+  },
+  "163": {
+    supplierName: "Vendor Group 163",
+    purchaseGroup: "PG-163",
+    paymentTerms: "Net 30 Days"
+  },
+  "164": {
+    supplierName: "Vendor Group 164",
+    purchaseGroup: "PG-164",
+    paymentTerms: "Net 45 Days"
+  },
+  "183": {
+    supplierName: "Vendor Group 183",
+    purchaseGroup: "PG-183",
+    paymentTerms: "Net 30 Days"
+  }
+};
+
+function toIsoDate(dateValue, hour = "09", minute = "00") {
+  return `${dateValue}T${hour}:${minute}:00+05:30`;
+}
+
+function plusDays(dateValue, days) {
+  const date = new Date(`${dateValue}T00:00:00+05:30`);
+  date.setDate(date.getDate() + days);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+export const mockPurchaseOrders = rawPurchaseOrderDataset.map((purchaseOrder) => {
+  const orgInfo = organizationMeta[purchaseOrder.org] ?? {
+    location: `Org ${purchaseOrder.org}`,
+    purchaseArea: `PO ${purchaseOrder.org} - Procurement`,
+    plant: `PL${purchaseOrder.org} - Operations`,
+    address: `Organization ${purchaseOrder.org} delivery location`
+  };
+
+  const groupInfo = groupMeta[purchaseOrder.group] ?? {
+    supplierName: `Vendor Group ${purchaseOrder.group}`,
+    purchaseGroup: `PG-${purchaseOrder.group}`,
+    paymentTerms: "Net 30 Days"
+  };
+
+  return {
+    id: purchaseOrder.id,
+    poNumber: purchaseOrder.id,
+    supplierName: groupInfo.supplierName,
+    location: orgInfo.location,
+    totalAmount: purchaseOrder.amount,
+    status: "Pending",
+    vendorInfo: {
+      vendorCode: `VEND-${purchaseOrder.group}`,
+      gstNumber: `27ORG${purchaseOrder.org}${purchaseOrder.group}1ZP`,
+      address: orgInfo.address,
+      contact: "+91 22 4000 1100",
+      email: `group${purchaseOrder.group}@procurement.example.com`
+    },
+    orderDetails: {
+      createdDate: toIsoDate(purchaseOrder.date),
+      purchaseArea: orgInfo.purchaseArea,
+      purchaseGroup: groupInfo.purchaseGroup,
+      paymentTerms: groupInfo.paymentTerms,
+      incoterms: "DAP - Delivered at Place"
+    },
+    deliveryInfo: {
+      plant: orgInfo.plant,
+      deliveryDate: toIsoDate(plusDays(purchaseOrder.date, 7), "10", "00"),
+      deliveryAddress: orgInfo.address
+    },
+    lineItems: purchaseOrder.items.map((item) => ({
+      itemNumber: String(item.itemNo).padStart(3, "0"),
+      material: item.material,
+      description: item.description,
+      quantity: item.qty,
+      unit: item.unit,
+      price: item.price
+    })),
+    approvalHistory: [
+      {
+        id: `${purchaseOrder.id}-created`,
+        type: "created",
+        title: "Created",
+        actor: `Org ${purchaseOrder.org} Buyer`,
+        role: `Purchase Group ${purchaseOrder.group}`,
+        time: toIsoDate(purchaseOrder.date),
+        note: `Purchase order ${purchaseOrder.id} created for organization ${purchaseOrder.org}.`
+      },
+      {
+        id: `${purchaseOrder.id}-submitted`,
+        type: "submitted",
+        title: "Submitted for Approval",
+        actor: `Org ${purchaseOrder.org} Buyer`,
+        role: `Purchase Group ${purchaseOrder.group}`,
+        time: toIsoDate(purchaseOrder.date, "09", "30"),
+        note:
+          purchaseOrder.amount <= managerLimit
+            ? "Submitted to manager approval queue."
+            : "Submitted to director escalation queue because the amount exceeds manager authority."
+      }
+    ],
+    attachments: []
+  };
+});
