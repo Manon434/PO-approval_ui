@@ -4,6 +4,7 @@ import TopBar from "./components/TopBar";
 import Sidebar from "./components/Sidebar";
 import EmptyState from "./components/EmptyState";
 import PurchaseOrderDetail from "./components/PurchaseOrderDetail";
+import ApproveModal from "./components/ApproveModal";
 import RejectModal from "./components/RejectModal";
 import NotificationCenter from "./components/NotificationCenter";
 import NewPurchaseOrderModal from "./components/NewPurchaseOrderModal";
@@ -108,7 +109,7 @@ function createPurchaseOrderFromUpload(uploadData, existingOrders) {
   };
 }
 
-function PurchaseOrderRoute({ visibleOrders, onApprove, onAttachFiles, onRejectOpen }) {
+function PurchaseOrderRoute({ visibleOrders, onApprove, onAttachFiles, onRemoveAttachment, onRejectOpen }) {
   const { poId } = useParams();
   const navigate = useNavigate();
   const purchaseOrder = visibleOrders.find((item) => item.id === poId);
@@ -128,6 +129,7 @@ function PurchaseOrderRoute({ visibleOrders, onApprove, onAttachFiles, onRejectO
       purchaseOrder={purchaseOrder}
       onApprove={onApprove}
       onAttachFiles={onAttachFiles}
+      onRemoveAttachment={onRemoveAttachment}
       onReject={onRejectOpen}
       onBack={() => navigate("/")}
     />
@@ -143,6 +145,7 @@ export default function App() {
     }))
   );
   const [rejectingPoId, setRejectingPoId] = useState(null);
+  const [approvingPoId, setApprovingPoId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("pending");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -159,7 +162,13 @@ export default function App() {
   const pendingOrders = purchaseOrders.filter((item) => item.status === "Pending");
   const approvedOrders = purchaseOrders.filter((item) => item.status === "Approved");
   const rejectedOrders = purchaseOrders.filter((item) => item.status === "Rejected");
-  const visibleOrders = activeSection === "approved" ? approvedOrders : pendingOrders;
+  const ordersBySection = {
+    pending: pendingOrders,
+    approved: approvedOrders,
+    rejected: rejectedOrders
+  };
+  const visibleOrders = ordersBySection[activeSection] ?? pendingOrders;
+  const approvingOrder = purchaseOrders.find((item) => item.id === approvingPoId) ?? null;
   const rejectingOrder = purchaseOrders.find((item) => item.id === rejectingPoId) ?? null;
   const unreadNotifications = notifications.filter((notification) => notification.unread).length;
   const currentDateLabel = useMemo(
@@ -249,6 +258,9 @@ export default function App() {
     } else if (targetOrder?.status === "Approved") {
       setActiveSection("approved");
       navigate(`/po/${poId}`);
+    } else if (targetOrder?.status === "Rejected") {
+      setActiveSection("rejected");
+      navigate(`/po/${poId}`);
     } else {
       showToast(
         "error",
@@ -301,12 +313,48 @@ export default function App() {
     );
   }
 
-  function handleApprove(poId) {
-    const approvedOrder = purchaseOrders.find((order) => order.id === poId);
+  function handleRemoveAttachment(poId, attachmentId) {
+    let removedAttachment = null;
+
+    setPurchaseOrders((currentOrders) =>
+      currentOrders.map((order) => {
+        if (order.id !== poId) {
+          return order;
+        }
+
+        removedAttachment = (order.attachments ?? []).find((attachment) => attachment.id === attachmentId) ?? null;
+
+        return {
+          ...order,
+          attachments: (order.attachments ?? []).filter((attachment) => attachment.id !== attachmentId)
+        };
+      })
+    );
+
+    if (removedAttachment?.url?.startsWith("blob:")) {
+      URL.revokeObjectURL(removedAttachment.url);
+      attachmentUrlsRef.current = attachmentUrlsRef.current.filter((url) => url !== removedAttachment.url);
+    }
+
+    if (removedAttachment) {
+      showToast("warning", "Attachment removed", `${removedAttachment.name} was removed from PO ${poId}.`);
+    }
+  }
+
+  function handleApproveRequest(poId) {
+    setApprovingPoId(poId);
+  }
+
+  function handleApprove({ comments }) {
+    if (!approvingPoId) {
+      return;
+    }
+
+    const approvedOrder = purchaseOrders.find((order) => order.id === approvingPoId);
 
     setPurchaseOrders((currentOrders) =>
       currentOrders.map((order) =>
-        order.id === poId
+        order.id === approvingPoId
           ? {
               ...order,
               status: "Approved",
@@ -319,7 +367,7 @@ export default function App() {
                   actor: directorRecipient.name,
                   role: directorRecipient.role,
                   time: new Date().toISOString(),
-                  note: "Approved by director authority."
+                  note: comments
                 }
               ]
             }
@@ -328,13 +376,14 @@ export default function App() {
     );
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
-        notification.poId === poId ? { ...notification, unread: false } : notification
+        notification.poId === approvingPoId ? { ...notification, unread: false } : notification
       )
     );
+    setApprovingPoId(null);
 
     if (approvedOrder) {
-      const nextPendingOrders = pendingOrders.filter((order) => order.id !== poId);
-      const nextRoute = nextPendingOrders[0] ? `/po/${nextPendingOrders[0].id}` : "/";
+      setActiveSection("approved");
+      const nextRoute = `/po/${approvedOrder.id}`;
       navigate(nextRoute);
       showToast("success", "Purchase order approved", `${approvedOrder.poNumber} was approved successfully.`);
     }
@@ -379,8 +428,8 @@ export default function App() {
     setRejectingPoId(null);
 
     if (rejectedOrder) {
-      const nextPendingOrders = pendingOrders.filter((order) => order.id !== rejectingPoId);
-      const nextRoute = nextPendingOrders[0] ? `/po/${nextPendingOrders[0].id}` : "/";
+      setActiveSection("rejected");
+      const nextRoute = `/po/${rejectedOrder.id}`;
       navigate(nextRoute);
       showToast("warning", "Purchase order rejected", `${rejectedOrder.poNumber} was rejected with comments recorded.`);
     }
@@ -421,8 +470,9 @@ export default function App() {
               element={
                 <PurchaseOrderRoute
                   visibleOrders={visibleOrders}
-                  onApprove={handleApprove}
+                  onApprove={handleApproveRequest}
                   onAttachFiles={handleAttachFiles}
+                  onRemoveAttachment={handleRemoveAttachment}
                   onRejectOpen={setRejectingPoId}
                 />
               }
@@ -432,6 +482,12 @@ export default function App() {
         </main>
       </div>
 
+      <ApproveModal
+        open={Boolean(approvingOrder)}
+        poNumber={approvingOrder?.poNumber}
+        onClose={() => setApprovingPoId(null)}
+        onConfirm={handleApprove}
+      />
       <RejectModal
         open={Boolean(rejectingOrder)}
         poNumber={rejectingOrder?.poNumber}

@@ -1,17 +1,28 @@
 import { NavLink } from "react-router-dom";
-import { CheckCircle2, ChevronRight, Clock3, FileText, X } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock3, FileText, X, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
 
 function StatusBadge({ status }) {
+  const isApproved = status === "Approved";
+  const isRejected = status === "Rejected";
+
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${
-        status === "Approved"
+        isApproved
           ? "border-emerald-300 bg-emerald-50 text-emerald-700"
-          : "border-amber-300 bg-amber-50 text-amber-700"
+          : isRejected
+            ? "border-red-300 bg-red-50 text-red-700"
+            : "border-amber-300 bg-amber-50 text-amber-700"
       }`}
     >
-      {status === "Approved" ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
+      {isApproved ? (
+        <CheckCircle2 className="h-3.5 w-3.5" />
+      ) : isRejected ? (
+        <XCircle className="h-3.5 w-3.5" />
+      ) : (
+        <Clock3 className="h-3.5 w-3.5" />
+      )}
       {status}
     </span>
   );
@@ -76,10 +87,11 @@ export default function Sidebar({
             <SummaryTile label="Approved" value={approvedCount} tone="success" />
             <SummaryTile label="Rejected" value={rejectedCount} tone="neutral" />
           </div>
-          <div className="mt-5 grid grid-cols-2 gap-2 rounded-[24px] bg-white p-1">
+          <div className="mt-5 grid grid-cols-3 gap-2 rounded-[24px] bg-white p-1">
             {[
               { key: "pending", label: "Pending", count: pendingCount },
-              { key: "approved", label: "Approved", count: approvedCount }
+              { key: "approved", label: "Approved", count: approvedCount },
+              { key: "rejected", label: "Rejected", count: rejectedCount }
             ].map((section) => (
               <button
                 key={section.key}
@@ -91,8 +103,10 @@ export default function Sidebar({
                     : "text-slate-600 hover:bg-slate-50"
                 }`}
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] opacity-70">{section.label}</p>
-                <p className="mt-1 text-xl font-semibold tracking-tight">{section.count}</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70 sm:text-xs sm:tracking-[0.16em]">
+                  {section.label}
+                </p>
+                <p className="mt-1 text-lg font-semibold tracking-tight sm:text-xl">{section.count}</p>
               </button>
             ))}
           </div>
@@ -103,7 +117,9 @@ export default function Sidebar({
             <div className="px-4 py-8 text-sm leading-6 text-slate-500 sm:px-5">
               {activeSection === "pending"
                 ? "There are no pending purchase orders to review."
-                : "There are no approved purchase orders yet."}
+                : activeSection === "approved"
+                  ? "There are no approved purchase orders yet."
+                  : "There are no rejected purchase orders yet."}
             </div>
           ) : (
             orders.map((order) => (

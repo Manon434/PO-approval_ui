@@ -30,6 +30,7 @@ function Field({ label, value, icon: Icon }) {
 function ApprovalDecision({ purchaseOrder, onApprove, onReject }) {
   const isPending = purchaseOrder.status === "Pending";
   const isApproved = purchaseOrder.status === "Approved";
+  const isRejected = purchaseOrder.status === "Rejected";
 
   return (
     <section className="rounded-[24px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[28px] sm:p-6">
@@ -50,7 +51,13 @@ function ApprovalDecision({ purchaseOrder, onApprove, onReject }) {
           </div>
           <div className="flex items-center justify-between gap-4">
             <span className="text-slate-500">Queue Status</span>
-            <span className={`font-semibold ${isApproved ? "text-emerald-600" : "text-amber-600"}`}>{purchaseOrder.status}</span>
+            <span
+              className={`font-semibold ${
+                isApproved ? "text-emerald-600" : isRejected ? "text-red-600" : "text-amber-600"
+              }`}
+            >
+              {purchaseOrder.status}
+            </span>
           </div>
         </div>
       </div>
@@ -92,13 +99,14 @@ export default function PurchaseOrderDetail({
   onApprove,
   onReject,
   onAttachFiles,
+  onRemoveAttachment,
   onBack
 }) {
   return (
     <div className="h-full overflow-y-auto">
-      <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6 sm:py-5 xl:px-8">
+      <div className="border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur md:sticky md:top-0 md:z-10 sm:px-6 sm:py-5 xl:px-8">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          <div>
+          <div className="min-w-0 flex-1">
             <button
               type="button"
               onClick={onBack}
@@ -108,52 +116,62 @@ export default function PurchaseOrderDetail({
               Back
             </button>
             <div className="flex flex-wrap items-center gap-3">
-              <h2 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+              <h2 className="min-w-0 break-words text-xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 Purchase Order #{purchaseOrder.poNumber}
               </h2>
-              <span className="rounded-full border border-amber-300 bg-amber-50 px-3 py-1 text-sm font-semibold text-amber-700">
+              <span
+                className={`shrink-0 rounded-full border px-3 py-1 text-sm font-semibold ${
+                  purchaseOrder.status === "Approved"
+                    ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                    : purchaseOrder.status === "Rejected"
+                      ? "border-red-300 bg-red-50 text-red-700"
+                      : "border-amber-300 bg-amber-50 text-amber-700"
+                }`}
+              >
                 {purchaseOrder.status}
               </span>
             </div>
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 break-words text-sm text-slate-500">
               {purchaseOrder.supplierName} | {purchaseOrder.orderDetails.purchaseArea}
             </p>
           </div>
 
-          <div className="rounded-[24px] bg-[#f4f6f8] px-5 py-4 text-left sm:px-6 sm:text-right">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Total Value</p>
-            <p className="mt-1 text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+          <div className="w-full rounded-[24px] border border-slate-200 bg-[#f4f6f8] px-4 py-4 text-left sm:px-6 md:w-auto md:min-w-[260px] md:text-right">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-xs sm:tracking-[0.2em]">
+              Total Value
+            </p>
+            <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
               {formatCurrency(purchaseOrder.totalAmount)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-5 px-4 py-5 sm:space-y-6 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
+      <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4 shadow-panel">
+          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
               <ClipboardList className="h-4 w-4 text-[#0070b1]" />
               Summary
             </div>
-            <p className="mt-3 text-lg font-semibold text-slate-900">
+            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">
               {purchaseOrder.lineItems.length} line items scheduled for {formatDate(purchaseOrder.deliveryInfo.deliveryDate)}
             </p>
           </div>
-          <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4 shadow-panel">
+          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
               <Truck className="h-4 w-4 text-[#0070b1]" />
               Delivery
             </div>
-            <p className="mt-3 text-lg font-semibold text-slate-900">{purchaseOrder.deliveryInfo.plant}</p>
+            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">{purchaseOrder.deliveryInfo.plant}</p>
             <p className="mt-1 text-sm text-slate-500">{purchaseOrder.deliveryInfo.deliveryAddress}</p>
           </div>
-          <div className="rounded-[24px] border border-slate-200 bg-white px-5 py-4 shadow-panel">
+          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
             <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
               <ShieldCheck className="h-4 w-4 text-[#0070b1]" />
               Authority
             </div>
-            <p className="mt-3 text-lg font-semibold text-slate-900">Director review required</p>
+            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">Director review required</p>
             <p className="mt-1 text-sm text-slate-500">Approve or reject actions are reserved for the director only.</p>
           </div>
         </section>
@@ -197,12 +215,12 @@ export default function PurchaseOrderDetail({
           <div className="space-y-3 p-4 md:hidden">
             {purchaseOrder.lineItems.map((item) => (
               <article key={item.itemNumber} className="rounded-[22px] border border-slate-200 bg-white p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Item #{item.itemNumber}</p>
                     <h4 className="mt-2 text-base font-semibold text-slate-900">{item.description}</h4>
                   </div>
-                  <span className="rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-[#0070b1]">
+                  <span className="max-w-full self-start break-all rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold text-[#0070b1]">
                     {item.material}
                   </span>
                 </div>
@@ -284,6 +302,7 @@ export default function PurchaseOrderDetail({
           poId={purchaseOrder.id}
           attachments={purchaseOrder.attachments ?? []}
           onAttachFiles={onAttachFiles}
+          onRemoveAttachment={onRemoveAttachment}
         />
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">

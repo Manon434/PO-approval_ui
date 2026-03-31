@@ -10,8 +10,8 @@ export default function TopBar({
   currentDateLabel
 }) {
   return (
-    <header className="flex min-h-[72px] items-center justify-between gap-3 bg-[#0070b1] px-3 py-3 text-white shadow-lg shadow-sky-900/20 sm:px-4 md:px-5">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+    <header className="flex min-h-[72px] items-start justify-between gap-3 bg-[#0070b1] px-3 py-3 text-white shadow-lg shadow-sky-900/20 sm:items-center sm:px-4 md:px-5">
+      <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={onMenuOpen}
@@ -27,7 +27,7 @@ export default function TopBar({
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xl font-semibold tracking-tight sm:text-2xl">POP</span>
             <span className="hidden h-6 w-px bg-white/30 sm:block" />
-            <span className="text-sm font-medium sm:text-lg">Purchase Order Approval</span>
+            <span className="text-sm font-medium leading-5 sm:text-lg">Purchase Order Approval</span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-sky-100 sm:gap-3 sm:text-sm">
             <p>{pendingCount} pending approvals</p>
@@ -37,11 +37,12 @@ export default function TopBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 sm:gap-3 md:gap-6">
+      <div className="flex shrink-0 items-center gap-2 self-start sm:self-center sm:gap-3 md:gap-6">
         <button
           type="button"
           onClick={onOpenUpload}
-          className="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2 text-sm font-semibold text-[#0070b1] transition hover:bg-sky-50 sm:px-4 sm:py-2.5"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-[#0070b1] transition hover:bg-sky-50 sm:h-auto sm:w-auto sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm sm:font-semibold"
+          aria-label="Upload purchase order"
         >
           <Upload className="h-4 w-4" />
           <span className="hidden sm:inline">Upload PO</span>

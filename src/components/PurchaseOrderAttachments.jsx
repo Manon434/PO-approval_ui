@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import { Download, FileImage, FileSpreadsheet, FileText, Paperclip, UploadCloud } from "lucide-react";
+import { Download, FileImage, FileSpreadsheet, FileText, Paperclip, Trash2, UploadCloud } from "lucide-react";
 import { formatDateTime } from "../utils/formatters";
 
 function formatFileSize(bytes = 0) {
@@ -54,7 +54,7 @@ function getAttachmentVisual(attachment) {
   };
 }
 
-export default function PurchaseOrderAttachments({ poId, attachments, onAttachFiles }) {
+export default function PurchaseOrderAttachments({ poId, attachments, onAttachFiles, onRemoveAttachment }) {
   const fileInputRef = useRef(null);
 
   function handleFileChange(event) {
@@ -116,7 +116,7 @@ export default function PurchaseOrderAttachments({ poId, attachments, onAttachFi
 
             return (
               <div key={attachment.id} className="rounded-[24px] border border-slate-200 bg-[#f8fafc] p-4">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="flex min-w-0 items-start gap-3">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-[#0070b1] shadow-sm">
                       <Icon className="h-5 w-5" />
@@ -134,17 +134,27 @@ export default function PurchaseOrderAttachments({ poId, attachments, onAttachFi
                     </div>
                   </div>
 
-                  {attachment.url ? (
-                    <a
-                      href={attachment.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                    {attachment.url ? (
+                      <a
+                        href={attachment.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 sm:w-auto"
+                      >
+                        <Download className="h-4 w-4" />
+                        Open
+                      </a>
+                    ) : null}
+                    <button
+                      type="button"
+                      onClick={() => onRemoveAttachment(poId, attachment.id)}
+                      className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm font-semibold text-red-700 transition hover:bg-red-100 sm:w-auto"
                     >
-                      <Download className="h-4 w-4" />
-                      Open
-                    </a>
-                  ) : null}
+                      <Trash2 className="h-4 w-4" />
+                      Remove
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mt-4 flex flex-wrap items-center gap-3 text-sm text-slate-500">
