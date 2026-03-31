@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import TopBar from "./components/TopBar";
 import Sidebar from "./components/Sidebar";
@@ -115,7 +115,7 @@ function createPurchaseOrderFromUpload(uploadData, existingOrders) {
   };
 }
 
-function PurchaseOrderRoute({ pendingOrders, onApprove, onRejectOpen }) {
+function PurchaseOrderRoute({ pendingOrders, onApprove, onAttachFiles, onRejectOpen }) {
   const { poId } = useParams();
   const navigate = useNavigate();
   const purchaseOrder = pendingOrders.find((item) => item.id === poId);
@@ -135,6 +135,7 @@ function PurchaseOrderRoute({ pendingOrders, onApprove, onRejectOpen }) {
       purchaseOrder={purchaseOrder}
       managerLimit={managerLimit}
       onApprove={onApprove}
+      onAttachFiles={onAttachFiles}
       onReject={onRejectOpen}
       onBack={() => navigate("/")}
     />
@@ -142,7 +143,13 @@ function PurchaseOrderRoute({ pendingOrders, onApprove, onRejectOpen }) {
 }
 
 export default function App() {
-  const [purchaseOrders, setPurchaseOrders] = useState(mockPurchaseOrders);
+  const attachmentUrlsRef = useRef([]);
+  const [purchaseOrders, setPurchaseOrders] = useState(() =>
+    mockPurchaseOrders.map((order) => ({
+      ...order,
+      attachments: order.attachments ?? []
+    }))
+  );
   const [rejectingPoId, setRejectingPoId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -174,6 +181,13 @@ export default function App() {
     setNotificationsOpen(false);
   }, [location.pathname]);
 
+  useEffect(
+    () => () => {
+      attachmentUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    },
+    []
+  );
+
   useEffect(() => {
     if (toasts.length === 0) {
       return undefined;
@@ -196,6 +210,23 @@ export default function App() {
         message
       }
     ]);
+  }
+
+  function createAttachmentRecords(files) {
+    return files.map((file, index) => {
+      const url = URL.createObjectURL(file);
+      attachmentUrlsRef.current.push(url);
+
+      return {
+        id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`,
+        name: file.name,
+        size: file.size,
+        mimeType: file.type,
+        category: file.type === "application/pdf" ? "PO PDF" : "Supporting Document",
+        uploadedAt: new Date().toISOString(),
+        url
+      };
+    });
   }
 
   function markAllNotificationsRead() {
@@ -230,7 +261,10 @@ export default function App() {
   }
 
   function handleUploadPurchaseOrder(uploadData) {
-    const newOrder = createPurchaseOrderFromUpload(uploadData, purchaseOrders);
+    const newOrder = {
+      ...createPurchaseOrderFromUpload(uploadData, purchaseOrders),
+      attachments: createAttachmentRecords(uploadData.attachments ?? [])
+    };
     const recipient = getApprovalRecipient(newOrder.totalAmount);
 
     setPurchaseOrders((currentOrders) => [newOrder, ...currentOrders]);
@@ -242,6 +276,27 @@ export default function App() {
       recipient.role === "Manager" ? "success" : "warning",
       `${recipient.role} notified`,
       `${recipient.name} received a new approval alert for PO ${newOrder.poNumber}.`
+    );
+  }
+
+  function handleAttachFiles(poId, files) {
+    const attachmentRecords = createAttachmentRecords(files);
+
+    setPurchaseOrders((currentOrders) =>
+      currentOrders.map((order) =>
+        order.id === poId
+          ? {
+              ...order,
+              attachments: [...(order.attachments ?? []), ...attachmentRecords]
+            }
+          : order
+      )
+    );
+
+    showToast(
+      "success",
+      "Attachments added",
+      `${attachmentRecords.length} document${attachmentRecords.length > 1 ? "s were" : " was"} attached to PO ${poId}.`
     );
   }
 
@@ -362,6 +417,7 @@ export default function App() {
                 <PurchaseOrderRoute
                   pendingOrders={pendingOrders}
                   onApprove={handleApprove}
+                  onAttachFiles={handleAttachFiles}
                   onRejectOpen={setRejectingPoId}
                 />
               }

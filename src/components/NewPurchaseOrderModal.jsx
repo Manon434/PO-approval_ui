@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { Building2, CalendarDays, ShieldAlert, ShieldCheck, UploadCloud, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Building2, CalendarDays, Paperclip, ShieldAlert, ShieldCheck, UploadCloud, X } from "lucide-react";
 import { formatCurrency } from "../utils/formatters";
 
 const purchaseAreaOptions = [
@@ -19,7 +19,9 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
     deliveryDate: "",
     deliveryAddress: ""
   });
+  const [attachments, setAttachments] = useState([]);
   const [showErrors, setShowErrors] = useState(false);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (!open) {
@@ -32,6 +34,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
         deliveryDate: "",
         deliveryAddress: ""
       });
+      setAttachments([]);
       setShowErrors(false);
     }
   }, [open]);
@@ -74,8 +77,25 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
 
     onSubmit({
       ...formData,
-      totalAmount: numericAmount
+      totalAmount: numericAmount,
+      attachments
     });
+  }
+
+  function handleAttachmentsChange(event) {
+    const selectedFiles = Array.from(event.target.files ?? []);
+
+    if (selectedFiles.length > 0) {
+      setAttachments((currentAttachments) => [...currentAttachments, ...selectedFiles]);
+    }
+
+    event.target.value = "";
+  }
+
+  function removeAttachment(indexToRemove) {
+    setAttachments((currentAttachments) =>
+      currentAttachments.filter((_, attachmentIndex) => attachmentIndex !== indexToRemove)
+    );
   }
 
   function inputClasses(hasError) {
@@ -205,6 +225,65 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
                 className={inputClasses(showErrors && !formData.deliveryAddress.trim())}
               />
             </div>
+
+            <div className="rounded-[24px] border border-slate-200 bg-slate-50 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Paperclip className="h-4 w-4 text-[#0070b1]" />
+                    <p className="text-sm font-semibold uppercase tracking-wide text-slate-600">Attachments</p>
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Attach the full PO PDF, tickets, quotations, or any supporting files to notify the approver with
+                    complete context.
+                  </p>
+                </div>
+
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.xls,.xlsx,.csv,.txt"
+                    className="hidden"
+                    onChange={handleAttachmentsChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    Add files
+                  </button>
+                </div>
+              </div>
+
+              {attachments.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  {attachments.map((attachment, index) => (
+                    <div
+                      key={`${attachment.name}-${index}`}
+                      className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="min-w-0">
+                        <p className="truncate font-semibold text-slate-900">{attachment.name}</p>
+                        <p className="text-sm text-slate-500">
+                          {attachment.type || "Document"} | {(attachment.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(index)}
+                        className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
 
           <div className="space-y-4 rounded-[28px] border border-slate-200 bg-[#f4f6f8] p-5">
@@ -216,7 +295,7 @@ export default function NewPurchaseOrderModal({ open, managerLimit, onClose, onS
             <div className="rounded-2xl bg-white px-4 py-4">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">Upload Value</p>
               <p className="mt-2 text-3xl font-semibold tracking-tight text-slate-950">
-                {numericAmount > 0 ? formatCurrency(numericAmount) : "₹0"}
+                {numericAmount > 0 ? formatCurrency(numericAmount) : formatCurrency(0)}
               </p>
             </div>
 

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
 import ApprovalTimeline from "./ApprovalTimeline";
+import PurchaseOrderAttachments from "./PurchaseOrderAttachments";
 
 function InfoCard({ title, icon: Icon, children }) {
   return (
@@ -105,7 +106,14 @@ function ApprovalDecision({ purchaseOrder, managerLimit, onApprove, onReject }) 
   );
 }
 
-export default function PurchaseOrderDetail({ purchaseOrder, managerLimit, onApprove, onReject, onBack }) {
+export default function PurchaseOrderDetail({
+  purchaseOrder,
+  managerLimit,
+  onApprove,
+  onReject,
+  onAttachFiles,
+  onBack
+}) {
   return (
     <div className="h-full overflow-y-auto">
       <div className="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-6 py-5 backdrop-blur xl:px-8">
@@ -254,6 +262,12 @@ export default function PurchaseOrderDetail({ purchaseOrder, managerLimit, onApp
             </table>
           </div>
         </section>
+
+        <PurchaseOrderAttachments
+          poId={purchaseOrder.id}
+          attachments={purchaseOrder.attachments ?? []}
+          onAttachFiles={onAttachFiles}
+        />
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">
           <ApprovalTimeline entries={purchaseOrder.approvalHistory} />
