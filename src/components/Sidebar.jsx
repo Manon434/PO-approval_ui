@@ -2,6 +2,11 @@ import { NavLink } from "react-router-dom";
 import { CheckCircle2, ChevronRight, Clock3, FileText, X, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
 
+const monthFormatter = new Intl.DateTimeFormat("en-IN", {
+  month: "long",
+  year: "numeric"
+});
+
 function StatusBadge({ status }) {
   const isApproved = status === "Approved";
   const isRejected = status === "Rejected";
@@ -48,11 +53,29 @@ export default function Sidebar({
   activeSection,
   pendingCount,
   approvedCount,
+  approvedTotalAmount,
   rejectedCount,
   onSectionChange,
   open,
   onClose
 }) {
+  const groupedOrders = orders.reduce((groups, order) => {
+    const monthLabel = monthFormatter.format(new Date(order.orderDetails.createdDate));
+    const existingGroup = groups.find((group) => group.label === monthLabel);
+
+    if (existingGroup) {
+      existingGroup.orders.push(order);
+      return groups;
+    }
+
+    groups.push({
+      label: monthLabel,
+      orders: [order]
+    });
+
+    return groups;
+  }, []);
+
   return (
     <>
       <div
@@ -86,6 +109,15 @@ export default function Sidebar({
             <SummaryTile label="Pending" value={pendingCount} tone="warning" />
             <SummaryTile label="Approved" value={approvedCount} tone="success" />
             <SummaryTile label="Rejected" value={rejectedCount} tone="neutral" />
+          </div>
+          <div className="mt-3 rounded-[24px] border border-emerald-200 bg-emerald-50 px-4 py-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80">Approved Spend</p>
+            <p className="mt-2 break-words text-2xl font-semibold tracking-tight text-emerald-900">
+              {formatCurrency(approvedTotalAmount)}
+            </p>
+            <p className="mt-1 text-xs leading-5 text-emerald-800/80">
+              Total value of all purchase orders approved by the authority.
+            </p>
           </div>
           <div className="mt-5 grid grid-cols-3 gap-2 rounded-[24px] bg-white p-1">
             {[
@@ -122,39 +154,46 @@ export default function Sidebar({
                   : "There are no rejected purchase orders yet."}
             </div>
           ) : (
-            orders.map((order) => (
-              <NavLink
-                key={order.id}
-                to={`/po/${order.id}`}
-                onClick={onClose}
-                className={({ isActive }) =>
-                  `group block border-b border-slate-100 px-4 py-4 transition sm:px-5 sm:py-5 ${
-                    isActive ? "bg-sky-50" : "hover:bg-slate-100/90"
-                  }`
-                }
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-[#0070b1]">
-                      <FileText className="h-4 w-4" />
-                      {order.poNumber}
-                    </div>
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">{order.supplierName}</h2>
-                      <p className="text-sm text-slate-500">{order.location}</p>
-                    </div>
-                    <div className="text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
-                      {formatCurrency(order.totalAmount)}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                      <StatusBadge status={order.status} />
-                      <span className="text-xs text-slate-400">{formatDate(order.orderDetails.createdDate)}</span>
-                    </div>
-                  </div>
-
-                  <ChevronRight className="mt-2 h-4 w-4 text-slate-400 transition group-hover:text-slate-600" />
+            groupedOrders.map((group) => (
+              <section key={group.label}>
+                <div className="sticky top-0 z-[1] border-b border-slate-200 bg-slate-50/95 px-4 py-2 backdrop-blur sm:px-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">{group.label}</p>
                 </div>
-              </NavLink>
+                {group.orders.map((order) => (
+                  <NavLink
+                    key={order.id}
+                    to={`/po/${order.id}`}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `group block border-b border-slate-100 px-4 py-4 transition sm:px-5 sm:py-5 ${
+                        isActive ? "bg-sky-50" : "hover:bg-slate-100/90"
+                      }`
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-[#0070b1]">
+                          <FileText className="h-4 w-4" />
+                          {order.poNumber}
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">{order.supplierName}</h2>
+                          <p className="text-sm text-slate-500">{order.location}</p>
+                        </div>
+                        <div className="text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
+                          {formatCurrency(order.totalAmount)}
+                        </div>
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                          <StatusBadge status={order.status} />
+                          <span className="text-xs text-slate-400">{formatDate(order.orderDetails.createdDate)}</span>
+                        </div>
+                      </div>
+
+                      <ChevronRight className="mt-2 h-4 w-4 text-slate-400 transition group-hover:text-slate-600" />
+                    </div>
+                  </NavLink>
+                ))}
+              </section>
             ))
           )}
         </div>

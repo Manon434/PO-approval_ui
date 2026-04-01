@@ -16,6 +16,18 @@ const directorRecipient = {
   role: "Director"
 };
 
+function sortOrdersByCreatedDate(orders) {
+  return [...orders].sort((left, right) => {
+    const dateDifference = new Date(right.orderDetails.createdDate) - new Date(left.orderDetails.createdDate);
+
+    if (dateDifference !== 0) {
+      return dateDifference;
+    }
+
+    return right.poNumber.localeCompare(left.poNumber);
+  });
+}
+
 function getApprovalRecipient() {
   return directorRecipient;
 }
@@ -159,9 +171,10 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pendingOrders = purchaseOrders.filter((item) => item.status === "Pending");
-  const approvedOrders = purchaseOrders.filter((item) => item.status === "Approved");
-  const rejectedOrders = purchaseOrders.filter((item) => item.status === "Rejected");
+  const pendingOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Pending"));
+  const approvedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Approved"));
+  const rejectedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Rejected"));
+  const approvedTotalAmount = approvedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
   const ordersBySection = {
     pending: pendingOrders,
     approved: approvedOrders,
@@ -456,6 +469,7 @@ export default function App() {
           activeSection={activeSection}
           pendingCount={pendingOrders.length}
           approvedCount={approvedOrders.length}
+          approvedTotalAmount={approvedTotalAmount}
           rejectedCount={rejectedOrders.length}
           onSectionChange={setActiveSection}
           open={sidebarOpen}
