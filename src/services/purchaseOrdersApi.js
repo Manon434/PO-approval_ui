@@ -1,5 +1,17 @@
-async function requestJson(url, options = {}) {
-  const response = await fetch(url, {
+const API_BASE = import.meta.env.VITE_API_URL ?? "";
+
+function buildApiUrl(path) {
+  if (!API_BASE) {
+    return path;
+  }
+
+  const base = API_BASE.endsWith("/") ? API_BASE.slice(0, -1) : API_BASE;
+  const nextPath = path.startsWith("/") ? path : `/${path}`;
+  return `${base}${nextPath}`;
+}
+
+async function requestJson(path, options = {}) {
+  const response = await fetch(buildApiUrl(path), {
     credentials: "include",
     ...options
   });
@@ -83,5 +95,4 @@ export function rejectPurchaseOrderInApi(poNumber, payload) {
     body: JSON.stringify(payload)
   });
 }
-
 
