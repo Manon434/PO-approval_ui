@@ -27,7 +27,9 @@ export const env = {
   jwtRefreshSecret: process.env.JWT_REFRESH_SECRET ?? "dev-refresh-secret-change-me",
   accessTokenTtlMinutes: Number(process.env.ACCESS_TOKEN_TTL_MINUTES ?? 15),
   refreshTokenTtlDays: Number(process.env.REFRESH_TOKEN_TTL_DAYS ?? 7),
-  cookieSecure: String(process.env.COOKIE_SECURE ?? "false").toLowerCase() === "true"
+  cookieSecure: String(process.env.COOKIE_SECURE ?? "false").toLowerCase() === "true",
+  cookieSameSite: process.env.COOKIE_SAMESITE ?? "lax",
+  frontendOrigin: process.env.FRONTEND_ORIGIN ?? ""
 };
 
 export function hasSapCredentials() {

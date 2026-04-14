@@ -40,7 +40,7 @@ function getRefreshTokenExpiryDate() {
 function getCookieBaseOptions(expires) {
   return {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: env.cookieSameSite,
     secure: env.cookieSecure,
     expires,
     path: "/"
@@ -109,8 +109,8 @@ export async function issueSessionCookies(response, user, requestDetails) {
 }
 
 export function clearSessionCookies(response) {
-  response.clearCookie(ACCESS_COOKIE_NAME, { httpOnly: true, sameSite: "lax", secure: env.cookieSecure, path: "/" });
-  response.clearCookie(REFRESH_COOKIE_NAME, { httpOnly: true, sameSite: "lax", secure: env.cookieSecure, path: "/" });
+  response.clearCookie(ACCESS_COOKIE_NAME, { httpOnly: true, sameSite: env.cookieSameSite, secure: env.cookieSecure, path: "/" });
+  response.clearCookie(REFRESH_COOKIE_NAME, { httpOnly: true, sameSite: env.cookieSameSite, secure: env.cookieSecure, path: "/" });
 }
 
 export function verifyAccessToken(token) {
