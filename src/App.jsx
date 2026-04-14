@@ -6,10 +6,23 @@ import EmptyState from "./components/EmptyState";
 import PurchaseOrderDetail from "./components/PurchaseOrderDetail";
 import ApproveModal from "./components/ApproveModal";
 import RejectModal from "./components/RejectModal";
+import LoginScreen from "./components/LoginScreen";
 import NotificationCenter from "./components/NotificationCenter";
 import NewPurchaseOrderModal from "./components/NewPurchaseOrderModal";
+import SettingsPanel from "./components/SettingsPanel";
 import ToastRegion from "./components/ToastRegion";
 import { mockPurchaseOrders, rejectionReasons } from "./data/mockData";
+import {
+  approvePurchaseOrderInApi,
+  fetchCurrentUserFromApi,
+  fetchPurchaseOrdersFromApi,
+  fetchSystemStatusFromApi,
+  isBackendUnavailable,
+  isUnauthorizedError,
+  loginInApi,
+  logoutFromApi,
+  rejectPurchaseOrderInApi
+} from "./services/purchaseOrdersApi";
 
 const directorRecipient = {
   name: "Ananya Rao",
@@ -48,6 +61,49 @@ function buildNotificationFromOrder(order, unread = true) {
     message:
       "New purchase order routed directly to director approval."
   };
+}
+
+function mergeNotifications(currentNotifications, orders, notifyPendingOnly) {
+  const nextMap = new Map(currentNotifications.map((notification) => [notification.poId, notification]));
+  const sortedOrders = sortOrdersByCreatedDate(orders);
+
+  for (const order of sortedOrders) {
+    const poId = order.id ?? order.poNumber;
+    const existing = nextMap.get(poId);
+
+    if (existing) {
+      nextMap.set(poId, {
+        ...existing,
+        poNumber: order.poNumber,
+        supplierName: order.supplierName,
+        amount: order.totalAmount,
+        createdAt: order.orderDetails.createdDate
+      });
+      continue;
+    }
+
+    const shouldNotify = !notifyPendingOnly || order.status === "Pending";
+    const notification = buildNotificationFromOrder(order, shouldNotify);
+    nextMap.set(poId, notification);
+  }
+
+  return Array.from(nextMap.values()).sort((left, right) => {
+    return new Date(right.createdAt) - new Date(left.createdAt);
+  });
+}
+
+function hydratePurchaseOrders(orders) {
+  return orders.map((order) => ({
+    id: order.id ?? order.poNumber,
+    ...order,
+    attachments: order.attachments ?? []
+  }));
+}
+
+function buildNotificationsFromOrders(orders) {
+  return sortOrdersByCreatedDate(orders).map((order) =>
+    buildNotificationFromOrder(order, order.status === "Pending")
+  );
 }
 
 function getNextPoNumber(orders) {
@@ -150,37 +206,91 @@ function PurchaseOrderRoute({ visibleOrders, onApprove, onAttachFiles, onRemoveA
 
 export default function App() {
   const attachmentUrlsRef = useRef([]);
-  const [purchaseOrders, setPurchaseOrders] = useState(() =>
-    mockPurchaseOrders.map((order) => ({
-      ...order,
-      attachments: order.attachments ?? []
-    }))
-  );
+  const previousOrderIdsRef = useRef(new Set());
+  const hasBootstrappedRef = useRef(false);
+  const [purchaseOrders, setPurchaseOrders] = useState(() => hydratePurchaseOrders(mockPurchaseOrders));
   const [rejectingPoId, setRejectingPoId] = useState(null);
   const [approvingPoId, setApprovingPoId] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("pending");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [authStatus, setAuthStatus] = useState("checking");
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState("");
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [backendDisconnected, setBackendDisconnected] = useState(false);
+  const [systemStatus, setSystemStatus] = useState(null);
   const [toasts, setToasts] = useState([]);
-  const [notifications, setNotifications] = useState(() =>
-    [...mockPurchaseOrders]
-      .sort((left, right) => new Date(right.orderDetails.createdDate) - new Date(left.orderDetails.createdDate))
-      .map((order) => buildNotificationFromOrder(order, true))
-  );
+  const [notifications, setNotifications] = useState(() => buildNotificationsFromOrders(mockPurchaseOrders));
+  const [settings, setSettings] = useState(() => {
+    try {
+      const saved = window.localStorage.getItem("pop-settings");
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {
+      // Ignore local storage parsing errors.
+    }
+
+    return {
+      autoRefresh: true,
+      refreshInterval: 15,
+      notifyPendingOnly: true,
+      autoReadNotifications: false,
+      playSound: true
+    };
+  });
   const navigate = useNavigate();
   const location = useLocation();
 
-  const pendingOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Pending"));
-  const approvedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Approved"));
-  const rejectedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Rejected"));
-  const approvedTotalAmount = approvedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const ordersBySection = {
-    pending: pendingOrders,
-    approved: approvedOrders,
-    rejected: rejectedOrders
-  };
-  const visibleOrders = ordersBySection[activeSection] ?? pendingOrders;
+  // const pendingOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Pending"));
+  // const approvedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Approved"));
+  // const rejectedOrders = sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Rejected"));
+  // const approvedTotalAmount = approvedOrders.reduce((sum, order) => sum + order.totalAmount, 0);
+  // const ordersBySection = {
+  //   pending: pendingOrders,
+  //   approved: approvedOrders,
+  //   rejected: rejectedOrders
+  // };
+  // const visibleOrders = ordersBySection[activeSection] ?? pendingOrders;
+  // const approvingOrder = purchaseOrders.find((item) => item.id === approvingPoId) ?? null;
+  // const rejectingOrder = purchaseOrders.find((item) => item.id === rejectingPoId) ?? null;
+  // const unreadNotifications = notifications.filter((notification) => notification.unread).length;
+
+  // ✅ FIX 1: Wrap all filtered lists in useMemo to stop the infinite re-render loop
+  const pendingOrders = useMemo(() => 
+    sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Pending")),
+    [purchaseOrders]
+  );
+
+  const approvedOrders = useMemo(() => 
+    sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Approved")),
+    [purchaseOrders]
+  );
+
+  const rejectedOrders = useMemo(() => 
+    sortOrdersByCreatedDate(purchaseOrders.filter((item) => item.status === "Rejected")),
+    [purchaseOrders]
+  );
+
+  const visibleOrders = useMemo(() => {
+    const ordersBySection = {
+      pending: pendingOrders,
+      approved: approvedOrders,
+      rejected: rejectedOrders
+    };
+    return ordersBySection[activeSection] ?? pendingOrders;
+  }, [activeSection, pendingOrders, approvedOrders, rejectedOrders]);
+
+  const approvedTotalAmount = useMemo(() => 
+    approvedOrders.reduce((sum, order) => sum + order.totalAmount, 0),
+    [approvedOrders]
+  );
+
+  // Keep these as they are
   const approvingOrder = purchaseOrders.find((item) => item.id === approvingPoId) ?? null;
   const rejectingOrder = purchaseOrders.find((item) => item.id === rejectingPoId) ?? null;
   const unreadNotifications = notifications.filter((notification) => notification.unread).length;
@@ -197,7 +307,107 @@ export default function App() {
   useEffect(() => {
     setSidebarOpen(false);
     setNotificationsOpen(false);
+    setSettingsOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPurchaseOrders(options = {}) {
+      try {
+        const apiOrders = await fetchPurchaseOrdersFromApi();
+
+        if (!active) {
+          return;
+        }
+
+        if (apiOrders.length === 0 && options.preserveExistingWhenEmpty) {
+          return;
+        }
+
+        const hydratedOrders = hydratePurchaseOrders(apiOrders);
+        setPurchaseOrders(hydratedOrders);
+        setNotifications((currentNotifications) =>
+          mergeNotifications(currentNotifications, hydratedOrders, settings.notifyPendingOnly)
+        );
+        if (hasBootstrappedRef.current) {
+          const previousIds = previousOrderIdsRef.current;
+          const newOrders = hydratedOrders.filter((order) => !previousIds.has(order.id));
+          handleNewOrdersNotification(newOrders);
+        }
+        previousOrderIdsRef.current = new Set(hydratedOrders.map((order) => order.id));
+        setBackendDisconnected(false);
+      } catch (error) {
+        if (isBackendUnavailable(error)) {
+          setBackendDisconnected(true);
+        } else {
+          console.warn("[frontend] Backend fetch failed:", error.message);
+        }
+      }
+    }
+
+    async function loadSystemStatus() {
+      try {
+        const statusPayload = await fetchSystemStatusFromApi();
+
+        if (!active) {
+          return;
+        }
+
+        setSystemStatus(statusPayload);
+        setBackendDisconnected(false);
+      } catch (error) {
+        if (isBackendUnavailable(error)) {
+          setBackendDisconnected(true);
+        }
+      }
+    }
+
+    async function bootstrapAuth() {
+      await loadSystemStatus();
+
+      try {
+        const authPayload = await fetchCurrentUserFromApi();
+
+        if (!active) {
+          return;
+        }
+
+        setCurrentUser(authPayload.user);
+        setAuthStatus("authenticated");
+        setIsDemoMode(false);
+        await loadPurchaseOrders();
+        hasBootstrappedRef.current = true;
+      } catch (error) {
+        if (!active) {
+          return;
+        }
+
+        if (isBackendUnavailable(error)) {
+          setAuthStatus("demo");
+          setIsDemoMode(true);
+          setBackendDisconnected(true);
+          showToast("warning", "Demo mode enabled", "Backend auth is unavailable, so the app is using local demo data.");
+          return;
+        }
+
+        if (isUnauthorizedError(error)) {
+          setAuthStatus("unauthenticated");
+          setIsDemoMode(false);
+          return;
+        }
+
+        setAuthStatus("unauthenticated");
+        setLoginError(error.message);
+      }
+    }
+
+    bootstrapAuth();
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(
     () => () => {
@@ -230,6 +440,105 @@ export default function App() {
     ]);
   }
 
+  function playNotificationTone() {
+    if (!settings.playSound) {
+      return;
+    }
+
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContext) {
+        return;
+      }
+      const context = new AudioContext();
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.setValueAtTime(880, context.currentTime);
+      gain.gain.setValueAtTime(0.0001, context.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.08, context.currentTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.3);
+      oscillator.connect(gain);
+      gain.connect(context.destination);
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.35);
+      oscillator.onended = () => context.close();
+    } catch {
+      // Ignore audio failures.
+    }
+  }
+
+  function handleNewOrdersNotification(newOrders) {
+    if (!newOrders.length) {
+      return;
+    }
+
+    const pendingNew = settings.notifyPendingOnly
+      ? newOrders.filter((order) => order.status === "Pending")
+      : newOrders;
+
+    if (pendingNew.length === 0) {
+      return;
+    }
+
+    showToast(
+      "success",
+      "New purchase orders received",
+      `${pendingNew.length} new PO${pendingNew.length > 1 ? "s" : ""} added to the queue.`
+    );
+    playNotificationTone();
+  }
+
+  async function handleLogin(credentials) {
+    setLoginLoading(true);
+    setLoginError("");
+
+    try {
+      const loginPayload = await loginInApi(credentials);
+      setBackendDisconnected(false);
+      setCurrentUser(loginPayload.user);
+      setAuthStatus("authenticated");
+      setIsDemoMode(false);
+
+      const apiOrders = await fetchPurchaseOrdersFromApi();
+      const hydratedOrders = hydratePurchaseOrders(apiOrders);
+      setPurchaseOrders(hydratedOrders);
+      setNotifications((currentNotifications) =>
+        mergeNotifications(currentNotifications, hydratedOrders, settings.notifyPendingOnly)
+      );
+      previousOrderIdsRef.current = new Set(hydratedOrders.map((order) => order.id));
+      hasBootstrappedRef.current = true;
+      const statusPayload = await fetchSystemStatusFromApi();
+      setSystemStatus(statusPayload);
+      showToast("success", "Secure session started", "You are signed in and protected API access is enabled.");
+    } catch (error) {
+      if (isBackendUnavailable(error)) {
+        setAuthStatus("demo");
+        setIsDemoMode(true);
+        setBackendDisconnected(true);
+        showToast("warning", "Demo mode enabled", "Backend auth is unavailable, so the app is using local demo data.");
+      } else {
+        setLoginError(error.message);
+      }
+    } finally {
+      setLoginLoading(false);
+    }
+  }
+
+  async function handleLogout() {
+    try {
+      await logoutFromApi();
+    } catch {
+      // Ignore logout transport issues and still clear local state.
+    }
+
+    setCurrentUser(null);
+    setAuthStatus("unauthenticated");
+    setNotificationsOpen(false);
+    setSidebarOpen(false);
+    showToast("success", "Signed out", "Your secure session has been closed.");
+  }
+
   function createAttachmentRecords(files) {
     return files.map((file, index) => {
       const url = URL.createObjectURL(file);
@@ -255,6 +564,44 @@ export default function App() {
       }))
     );
   }
+
+  useEffect(() => {
+    if (!notificationsOpen || !settings.autoReadNotifications) {
+      return;
+    }
+
+    markAllNotificationsRead();
+  }, [notificationsOpen, settings.autoReadNotifications]);
+
+  useEffect(() => {
+    if (!settings.autoRefresh || authStatus !== "authenticated" || isDemoMode) {
+      return undefined;
+    }
+
+    const intervalMs = Math.max(5, settings.refreshInterval) * 60 * 1000;
+
+    const intervalId = window.setInterval(async () => {
+      try {
+        const apiOrders = await fetchPurchaseOrdersFromApi();
+        const hydratedOrders = hydratePurchaseOrders(apiOrders);
+        setPurchaseOrders(hydratedOrders);
+        setNotifications((currentNotifications) =>
+          mergeNotifications(currentNotifications, hydratedOrders, settings.notifyPendingOnly)
+        );
+        const previousIds = previousOrderIdsRef.current;
+        const newOrders = hydratedOrders.filter((order) => !previousIds.has(order.id));
+        handleNewOrdersNotification(newOrders);
+        previousOrderIdsRef.current = new Set(hydratedOrders.map((order) => order.id));
+        setBackendDisconnected(false);
+      } catch (error) {
+        if (isBackendUnavailable(error)) {
+          setBackendDisconnected(true);
+        }
+      }
+    }, intervalMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [authStatus, isDemoMode, settings.autoRefresh, settings.refreshInterval, settings.notifyPendingOnly]);
 
   function openNotificationOrder(notificationId, poId) {
     const targetOrder = purchaseOrders.find((order) => order.id === poId);
@@ -303,6 +650,30 @@ export default function App() {
       `${recipient.role} notified`,
       `${recipient.name} received a new approval alert for PO ${newOrder.poNumber}.`
     );
+  }
+
+  async function handleRefreshNow() {
+    try {
+      const apiOrders = await fetchPurchaseOrdersFromApi();
+      const hydratedOrders = hydratePurchaseOrders(apiOrders);
+      setPurchaseOrders(hydratedOrders);
+      setNotifications((currentNotifications) =>
+        mergeNotifications(currentNotifications, hydratedOrders, settings.notifyPendingOnly)
+      );
+      const previousIds = previousOrderIdsRef.current;
+      const newOrders = hydratedOrders.filter((order) => !previousIds.has(order.id));
+      handleNewOrdersNotification(newOrders);
+      previousOrderIdsRef.current = new Set(hydratedOrders.map((order) => order.id));
+      setBackendDisconnected(false);
+      showToast("success", "Refresh complete", "The latest SAP queue has been loaded.");
+    } catch (error) {
+      if (isBackendUnavailable(error)) {
+        setBackendDisconnected(true);
+        showToast("error", "Refresh failed", "Backend is currently unavailable.");
+      } else {
+        showToast("error", "Refresh failed", error.message);
+      }
+    }
   }
 
   function handleAttachFiles(poId, files) {
@@ -358,34 +729,54 @@ export default function App() {
     setApprovingPoId(poId);
   }
 
-  function handleApprove({ comments }) {
+  async function handleApprove({ comments }) {
     if (!approvingPoId) {
       return;
     }
 
     const approvedOrder = purchaseOrders.find((order) => order.id === approvingPoId);
+    let backendOrder = null;
+
+    try {
+      backendOrder = await approvePurchaseOrderInApi(approvingPoId, { comments });
+    } catch (error) {
+      if (!isBackendUnavailable(error)) {
+        showToast("error", "Approval failed", error.message);
+        return;
+      }
+    }
 
     setPurchaseOrders((currentOrders) =>
-      currentOrders.map((order) =>
-        order.id === approvingPoId
-          ? {
-              ...order,
-              status: "Approved",
-              approvalHistory: [
-                ...order.approvalHistory,
-                {
-                  id: `${order.id}-approved`,
-                  type: "approved",
-                  title: "Approved",
-                  actor: directorRecipient.name,
-                  role: directorRecipient.role,
-                  time: new Date().toISOString(),
-                  note: comments
-                }
-              ]
+      currentOrders.map((order) => {
+        if (order.id !== approvingPoId) {
+          return order;
+        }
+
+        if (backendOrder) {
+          return {
+            ...order,
+            ...backendOrder,
+            attachments: backendOrder.attachments ?? order.attachments ?? []
+          };
+        }
+
+        return {
+          ...order,
+          status: "Approved",
+          approvalHistory: [
+            ...order.approvalHistory,
+            {
+              id: `${order.id}-approved`,
+              type: "approved",
+              title: "Approved",
+              actor: directorRecipient.name,
+              role: directorRecipient.role,
+              time: new Date().toISOString(),
+              note: comments
             }
-          : order
-      )
+          ]
+        };
+      })
     );
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
@@ -402,35 +793,55 @@ export default function App() {
     }
   }
 
-  function handleReject({ reason, comments }) {
+  async function handleReject({ reason, comments }) {
     if (!rejectingPoId) {
       return;
     }
 
     const rejectedOrder = purchaseOrders.find((order) => order.id === rejectingPoId);
+    let backendOrder = null;
+
+    try {
+      backendOrder = await rejectPurchaseOrderInApi(rejectingPoId, { reason, comments });
+    } catch (error) {
+      if (!isBackendUnavailable(error)) {
+        showToast("error", "Rejection failed", error.message);
+        return;
+      }
+    }
 
     setPurchaseOrders((currentOrders) =>
-      currentOrders.map((order) =>
-        order.id === rejectingPoId
-          ? {
-              ...order,
-              status: "Rejected",
-              approvalHistory: [
-                ...order.approvalHistory,
-                {
-                  id: `${order.id}-rejected`,
-                  type: "rejected",
-                  title: "Rejected",
-                  actor: directorRecipient.name,
-                  role: directorRecipient.role,
-                  time: new Date().toISOString(),
-                  note: comments,
-                  reason
-                }
-              ]
+      currentOrders.map((order) => {
+        if (order.id !== rejectingPoId) {
+          return order;
+        }
+
+        if (backendOrder) {
+          return {
+            ...order,
+            ...backendOrder,
+            attachments: backendOrder.attachments ?? order.attachments ?? []
+          };
+        }
+
+        return {
+          ...order,
+          status: "Rejected",
+          approvalHistory: [
+            ...order.approvalHistory,
+            {
+              id: `${order.id}-rejected`,
+              type: "rejected",
+              title: "Rejected",
+              actor: directorRecipient.name,
+              role: directorRecipient.role,
+              time: new Date().toISOString(),
+              note: comments,
+              reason
             }
-          : order
-      )
+          ]
+        };
+      })
     );
     setNotifications((currentNotifications) =>
       currentNotifications.map((notification) =>
@@ -448,6 +859,30 @@ export default function App() {
     }
   }
 
+  if (authStatus === "checking") {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[linear-gradient(180deg,#eff6ff_0%,#ffffff_100%)] px-6">
+        <div className="rounded-[32px] border border-slate-200 bg-white px-8 py-10 text-center shadow-panel">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Security Check</p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900">Restoring secure session</h1>
+          <p className="mt-3 text-sm leading-7 text-slate-500">Please wait while the app verifies your access.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <LoginScreen
+        loading={loginLoading}
+        error={loginError}
+        onLogin={handleLogin}
+        backendDisconnected={backendDisconnected}
+        systemStatus={systemStatus}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-transparent text-slate-900">
       <TopBar
@@ -456,11 +891,16 @@ export default function App() {
         notificationsOpen={notificationsOpen}
         onMenuOpen={() => setSidebarOpen(true)}
         onToggleNotifications={() => setNotificationsOpen((currentValue) => !currentValue)}
+        onOpenSettings={() => setSettingsOpen(true)}
         onOpenUpload={() => {
           setUploadModalOpen(true);
           setNotificationsOpen(false);
         }}
         currentDateLabel={currentDateLabel}
+        currentUser={currentUser}
+        onLogout={isDemoMode ? null : handleLogout}
+        showUpload={authStatus === "authenticated" || isDemoMode}
+        securityMode={isDemoMode ? "demo" : "secure"}
       />
 
       <div className="flex h-[calc(100dvh-72px)] flex-col overflow-hidden xl:flex-row">
@@ -521,6 +961,20 @@ export default function App() {
         onClose={() => setNotificationsOpen(false)}
         onMarkAllRead={markAllNotificationsRead}
         onOpenOrder={openNotificationOrder}
+      />
+      <SettingsPanel
+        open={settingsOpen}
+        settings={settings}
+        onChange={(nextSettings) => {
+          setSettings(nextSettings);
+          try {
+            window.localStorage.setItem("pop-settings", JSON.stringify(nextSettings));
+          } catch {
+            // Ignore local storage errors.
+          }
+        }}
+        onRefreshNow={handleRefreshNow}
+        onClose={() => setSettingsOpen(false)}
       />
       <ToastRegion toasts={toasts} />
     </div>

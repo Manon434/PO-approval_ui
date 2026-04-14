@@ -130,6 +130,11 @@ export default function PurchaseOrderDetail({
               >
                 {purchaseOrder.status}
               </span>
+              {purchaseOrder.syncState === "awaiting_confirmation" ? (
+                <span className="shrink-0 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
+                  Pending confirmation
+                </span>
+              ) : null}
             </div>
             <p className="mt-2 break-words text-sm text-slate-500">
               {purchaseOrder.supplierName} | {purchaseOrder.orderDetails.purchaseArea}
