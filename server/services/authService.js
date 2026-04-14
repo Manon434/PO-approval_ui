@@ -99,6 +99,7 @@ export async function issueSessionCookies(response, user, requestDetails) {
 
   return {
     sessionId,
+    accessToken,
     user: {
       id: user.id,
       email: user.email,

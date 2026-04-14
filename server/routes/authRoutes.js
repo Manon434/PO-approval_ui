@@ -72,7 +72,8 @@ router.post("/login", loginLimiter, async (request, response) => {
     });
 
     response.json({
-      user: session.user
+      user: session.user,
+      accessToken: session.accessToken
     });
   } catch (error) {
     response.status(500).json({ error: error.message });

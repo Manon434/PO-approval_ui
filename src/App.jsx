@@ -21,7 +21,8 @@ import {
   isUnauthorizedError,
   loginInApi,
   logoutFromApi,
-  rejectPurchaseOrderInApi
+  rejectPurchaseOrderInApi,
+  setAccessToken
 } from "./services/purchaseOrdersApi";
 
 const directorRecipient = {
@@ -499,6 +500,9 @@ export default function App() {
       setCurrentUser(loginPayload.user);
       setAuthStatus("authenticated");
       setIsDemoMode(false);
+      if (loginPayload.accessToken) {
+        setAccessToken(loginPayload.accessToken);
+      }
 
       const apiOrders = await fetchPurchaseOrdersFromApi();
       const hydratedOrders = hydratePurchaseOrders(apiOrders);
@@ -532,6 +536,7 @@ export default function App() {
       // Ignore logout transport issues and still clear local state.
     }
 
+    setAccessToken("");
     setCurrentUser(null);
     setAuthStatus("unauthenticated");
     setNotificationsOpen(false);

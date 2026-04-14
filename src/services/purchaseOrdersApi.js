@@ -1,4 +1,11 @@
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
+let accessToken = "";
+
+try {
+  accessToken = window.sessionStorage.getItem("pop-access-token") ?? "";
+} catch {
+  accessToken = "";
+}
 
 function buildApiUrl(path) {
   if (!API_BASE) {
@@ -11,9 +18,18 @@ function buildApiUrl(path) {
 }
 
 async function requestJson(path, options = {}) {
+  const headers = {
+    ...(options.headers ?? {})
+  };
+
+  if (accessToken) {
+    headers.Authorization = `Bearer ${accessToken}`;
+  }
+
   const response = await fetch(buildApiUrl(path), {
     credentials: "include",
-    ...options
+    ...options,
+    headers
   });
 
   if (!response.ok) {
@@ -30,6 +46,19 @@ async function requestJson(path, options = {}) {
   }
 
   return response.json();
+}
+
+export function setAccessToken(token) {
+  accessToken = token ?? "";
+  try {
+    if (accessToken) {
+      window.sessionStorage.setItem("pop-access-token", accessToken);
+    } else {
+      window.sessionStorage.removeItem("pop-access-token");
+    }
+  } catch {
+    // Ignore storage issues.
+  }
 }
 
 export function isBackendUnavailable(error) {
@@ -95,4 +124,3 @@ export function rejectPurchaseOrderInApi(poNumber, payload) {
     body: JSON.stringify(payload)
   });
 }
-
