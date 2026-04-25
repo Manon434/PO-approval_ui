@@ -1,6 +1,5 @@
-import { ArrowLeft, Building2, CalendarDays, CheckCircle2, ClipboardList, Mail, MapPin, ShieldCheck, Phone, Truck, XCircle } from "lucide-react";
+import { ArrowLeft, Building2, CalendarDays, CheckCircle2, Mail, MapPin, ShieldCheck, Phone, Truck, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
-import ApprovalTimeline from "./ApprovalTimeline";
 import PurchaseOrderAttachments from "./PurchaseOrderAttachments";
 
 function InfoCard({ title, icon: Icon, children }) {
@@ -37,33 +36,6 @@ function ApprovalDecision({ purchaseOrder, onApprove, onReject }) {
       <div className="flex items-center gap-2">
         <ShieldCheck className="h-5 w-5 text-[#0070b1]" />
         <h3 className="text-lg font-semibold text-slate-900">Approval Decision</h3>
-      </div>
-
-      <div className="mt-5 rounded-2xl bg-white/70 p-4">
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-slate-500">Approval Authority</span>
-            <span className="font-semibold text-slate-900">Director</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-slate-500">PO Amount</span>
-            <span className="font-semibold text-slate-900">{formatCurrency(purchaseOrder.totalAmount)}</span>
-          </div>
-          <div className="flex items-center justify-between gap-4">
-            <span className="text-slate-500">Queue Status</span>
-            <span
-              className={`font-semibold ${
-                isApproved ? "text-emerald-600" : isRejected ? "text-red-600" : "text-amber-600"
-              }`}
-            >
-              {purchaseOrder.status}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm leading-6 text-sky-900">
-        Director approval is required for all purchase orders in this workspace.
       </div>
 
       <div className="mt-6 space-y-3">
@@ -153,44 +125,7 @@ export default function PurchaseOrderDetail({
       </div>
 
       <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
-            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
-              <ClipboardList className="h-4 w-4 text-[#0070b1]" />
-              Summary
-            </div>
-            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">
-              {purchaseOrder.lineItems.length} line items scheduled for {formatDate(purchaseOrder.deliveryInfo.deliveryDate)}
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
-            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
-              <Truck className="h-4 w-4 text-[#0070b1]" />
-              Delivery
-            </div>
-            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">{purchaseOrder.deliveryInfo.plant}</p>
-            <p className="mt-1 text-sm text-slate-500">{purchaseOrder.deliveryInfo.deliveryAddress}</p>
-          </div>
-          <div className="rounded-[24px] border border-slate-200 bg-white px-4 py-4 shadow-panel sm:px-5">
-            <div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] text-slate-400">
-              <ShieldCheck className="h-4 w-4 text-[#0070b1]" />
-              Authority
-            </div>
-            <p className="mt-3 text-base font-semibold text-slate-900 sm:text-lg">Director review required</p>
-            <p className="mt-1 text-sm text-slate-500">Approve or reject actions are reserved for the director only.</p>
-          </div>
-        </section>
-
         <div className="grid gap-5 xl:grid-cols-3">
-          <InfoCard title="Vendor Information" icon={Building2}>
-            <Field label="Vendor Name" value={purchaseOrder.supplierName} />
-            <Field label="Vendor Code" value={purchaseOrder.vendorInfo.vendorCode} />
-            <Field label="GST Number" value={purchaseOrder.vendorInfo.gstNumber} />
-            <Field label="Address" value={purchaseOrder.vendorInfo.address} icon={MapPin} />
-            <Field label="Contact" value={purchaseOrder.vendorInfo.contact} icon={Phone} />
-            <Field label="Email" value={purchaseOrder.vendorInfo.email} icon={Mail} />
-          </InfoCard>
-
           <InfoCard title="Order Details" icon={CalendarDays}>
             <Field label="PO Number" value={purchaseOrder.poNumber} />
             <Field label="Created Date" value={formatDate(purchaseOrder.orderDetails.createdDate)} icon={CalendarDays} />
@@ -200,7 +135,16 @@ export default function PurchaseOrderDetail({
             <Field label="Incoterms" value={purchaseOrder.orderDetails.incoterms} />
           </InfoCard>
 
-          <InfoCard title="Delivery Information" icon={Truck}>
+          <InfoCard title="Vendor Information" icon={Building2}>
+            <Field label="Vendor Name" value={purchaseOrder.supplierName} />
+            <Field label="Vendor Code" value={purchaseOrder.vendorInfo.vendorCode} />
+            <Field label="GST Number" value={purchaseOrder.vendorInfo.gstNumber} />
+            <Field label="Address" value={purchaseOrder.vendorInfo.address} icon={MapPin} />
+            <Field label="Contact" value={purchaseOrder.vendorInfo.contact} icon={Phone} />
+            <Field label="Email" value={purchaseOrder.vendorInfo.email} icon={Mail} />
+          </InfoCard>
+
+          <InfoCard title="Delivery Address" icon={Truck}>
             <Field label="Plant" value={purchaseOrder.deliveryInfo.plant} />
             <Field label="Delivery Date" value={formatDate(purchaseOrder.deliveryInfo.deliveryDate)} icon={CalendarDays} />
             <Field label="Delivery Address" value={purchaseOrder.deliveryInfo.deliveryAddress} icon={MapPin} />
@@ -310,14 +254,11 @@ export default function PurchaseOrderDetail({
           onRemoveAttachment={onRemoveAttachment}
         />
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(320px,0.9fr)]">
-          <ApprovalTimeline entries={purchaseOrder.approvalHistory} />
-          <ApprovalDecision
-            purchaseOrder={purchaseOrder}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
-        </div>
+        <ApprovalDecision
+          purchaseOrder={purchaseOrder}
+          onApprove={onApprove}
+          onReject={onReject}
+        />
       </div>
     </div>
   );
