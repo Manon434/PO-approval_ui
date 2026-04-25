@@ -22,7 +22,7 @@ export const env = {
   sapFrgcoCodes: parseFrgcoCodes(process.env.SAP_FRGCO_CODES),
   sapSyncCron: process.env.SAP_SYNC_CRON ?? "*/15 * * * *",
   appDirectorEmail: process.env.APP_DIRECTOR_EMAIL ?? "director@pop.local",
-  appDirectorPassword: process.env.APP_DIRECTOR_PASSWORD ?? "ChangeMe123!",
+  appDirectorPassword: process.env.APP_DIRECTOR_PASSWORD ?? "Login123!",
   appDemoEmail: process.env.APP_DEMO_EMAIL ?? "clientdemo@pop.local",
   appDemoPassword: process.env.APP_DEMO_PASSWORD ?? "ClientDemo123!",
   jwtAccessSecret: process.env.JWT_ACCESS_SECRET ?? "dev-access-secret-change-me",
