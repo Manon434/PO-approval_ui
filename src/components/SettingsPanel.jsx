@@ -113,6 +113,15 @@ export default function SettingsPanel({ open, settings, onChange, onClose, onRef
             checked={settings.playSound}
             onChange={(value) => onChange({ ...settings, playSound: value })}
           />
+
+          {settings.canManageDemoAccess ? (
+            <Toggle
+              label="Client demo login"
+              description="Allow clients to sign in with the demo account. Turn this off when the demo is no longer needed."
+              checked={settings.demoAccessEnabled}
+              onChange={(value) => onChange({ ...settings, demoAccessEnabled: value }, { persistRemote: true })}
+            />
+          ) : null}
         </div>
       </aside>
     </div>

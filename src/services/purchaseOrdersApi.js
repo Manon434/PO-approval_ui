@@ -97,6 +97,20 @@ export function logoutFromApi() {
   });
 }
 
+export function fetchDemoAccessFromApi() {
+  return requestJson("/api/auth/demo-access");
+}
+
+export function updateDemoAccessInApi(enabled) {
+  return requestJson("/api/auth/demo-access", {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ enabled })
+  });
+}
+
 export function fetchSuspiciousActivityFromApi() {
   return requestJson("/api/security/suspicious");
 }

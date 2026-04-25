@@ -15,6 +15,7 @@ import { mockPurchaseOrders, rejectionReasons } from "./data/mockData";
 import {
   approvePurchaseOrderInApi,
   fetchCurrentUserFromApi,
+  fetchDemoAccessFromApi,
   fetchPurchaseOrdersFromApi,
   fetchSystemStatusFromApi,
   isBackendUnavailable,
@@ -22,7 +23,8 @@ import {
   loginInApi,
   logoutFromApi,
   rejectPurchaseOrderInApi,
-  setAccessToken
+  setAccessToken,
+  updateDemoAccessInApi
 } from "./services/purchaseOrdersApi";
 
 const directorRecipient = {
@@ -241,7 +243,9 @@ export default function App() {
       refreshInterval: 15,
       notifyPendingOnly: true,
       autoReadNotifications: false,
-      playSound: true
+      playSound: true,
+      canManageDemoAccess: false,
+      demoAccessEnabled: true
     };
   });
   const navigate = useNavigate();
@@ -377,6 +381,14 @@ export default function App() {
         setCurrentUser(authPayload.user);
         setAuthStatus("authenticated");
         setIsDemoMode(false);
+        if (authPayload.user.role === "Director") {
+          const demoAccess = await fetchDemoAccessFromApi();
+          setSettings((currentSettings) => ({
+            ...currentSettings,
+            canManageDemoAccess: true,
+            demoAccessEnabled: demoAccess.enabled
+          }));
+        }
         await loadPurchaseOrders();
         hasBootstrappedRef.current = true;
       } catch (error) {
@@ -502,6 +514,20 @@ export default function App() {
       setIsDemoMode(false);
       if (loginPayload.accessToken) {
         setAccessToken(loginPayload.accessToken);
+      }
+
+      if (loginPayload.user.role === "Director") {
+        const demoAccess = await fetchDemoAccessFromApi();
+        setSettings((currentSettings) => ({
+          ...currentSettings,
+          canManageDemoAccess: true,
+          demoAccessEnabled: demoAccess.enabled
+        }));
+      } else {
+        setSettings((currentSettings) => ({
+          ...currentSettings,
+          canManageDemoAccess: false
+        }));
       }
 
       const apiOrders = await fetchPurchaseOrdersFromApi();
@@ -970,12 +996,31 @@ export default function App() {
       <SettingsPanel
         open={settingsOpen}
         settings={settings}
-        onChange={(nextSettings) => {
+        onChange={async (nextSettings, options = {}) => {
           setSettings(nextSettings);
           try {
             window.localStorage.setItem("pop-settings", JSON.stringify(nextSettings));
           } catch {
             // Ignore local storage errors.
+          }
+
+          if (options.persistRemote && currentUser?.role === "Director") {
+            try {
+              const demoAccess = await updateDemoAccessInApi(nextSettings.demoAccessEnabled);
+              setSettings((currentSettings) => ({
+                ...currentSettings,
+                demoAccessEnabled: demoAccess.enabled
+              }));
+              showToast(
+                "success",
+                demoAccess.enabled ? "Demo login enabled" : "Demo login disabled",
+                demoAccess.enabled
+                  ? "Clients can sign in with the demo account."
+                  : "The client demo account can no longer sign in."
+              );
+            } catch (error) {
+              showToast("error", "Demo access update failed", error.message);
+            }
           }
         }}
         onRefreshNow={handleRefreshNow}

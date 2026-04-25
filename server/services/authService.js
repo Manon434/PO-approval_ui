@@ -3,18 +3,29 @@ import crypto from "crypto";
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { createSession, findSessionByRefreshTokenHash, revokeSession } from "../repositories/sessionRepository.js";
+import { getDemoAccess } from "./demoAccessService.js";
 
 const ACCESS_COOKIE_NAME = "po_access_token";
 const REFRESH_COOKIE_NAME = "po_refresh_token";
 
-function getConfiguredUser() {
-  return {
+function getConfiguredUsers() {
+  return [
+    {
     id: "director-1",
     email: env.appDirectorEmail,
     role: "Director",
     name: "Ananya Rao",
     password: env.appDirectorPassword
-  };
+    },
+    {
+      id: "client-demo-1",
+      email: env.appDemoEmail,
+      role: "Client Demo",
+      name: "Client Demo",
+      password: env.appDemoPassword,
+      demoAccount: true
+    }
+  ];
 }
 
 function buildAccessTokenPayload(user, sessionId) {
@@ -62,7 +73,19 @@ function hashRefreshToken(refreshToken) {
 }
 
 export async function verifyLoginCredentials(email, password) {
-  const user = getConfiguredUser();
+  const user = getConfiguredUsers().find((configuredUser) => configuredUser.email === email);
+
+  if (!user) {
+    return null;
+  }
+
+  if (user.demoAccount) {
+    const demoAccess = await getDemoAccess();
+
+    if (!demoAccess.enabled) {
+      return null;
+    }
+  }
 
   if (email !== user.email) {
     return null;

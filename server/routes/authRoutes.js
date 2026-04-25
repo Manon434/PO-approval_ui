@@ -7,7 +7,8 @@ import {
   verifyLoginCredentials
 } from "../services/authService.js";
 import { getDeviceLabelFromRequest, getRequestIp, logSecurityEvent } from "../services/securityLogService.js";
-import { attachAuthContext, requireAuth } from "../middleware/authMiddleware.js";
+import { attachAuthContext, requireAuth, requireRole } from "../middleware/authMiddleware.js";
+import { getDemoAccess, setDemoAccess } from "../services/demoAccessService.js";
 
 const router = express.Router();
 
@@ -114,6 +115,24 @@ router.get("/me", attachAuthContext, requireAuth, (request, response) => {
       name: request.user.name
     }
   });
+});
+
+router.get("/demo-access", attachAuthContext, requireAuth, async (_request, response) => {
+  try {
+    const demoAccess = await getDemoAccess();
+    response.json(demoAccess);
+  } catch (error) {
+    response.status(500).json({ error: error.message });
+  }
+});
+
+router.put("/demo-access", attachAuthContext, requireAuth, requireRole("Director"), async (request, response) => {
+  try {
+    const demoAccess = await setDemoAccess(request.body.enabled);
+    response.json(demoAccess);
+  } catch (error) {
+    response.status(500).json({ error: error.message });
+  }
 });
 
 export default router;
