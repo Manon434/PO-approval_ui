@@ -4,12 +4,12 @@ import PurchaseOrderAttachments from "./PurchaseOrderAttachments";
 
 function InfoCard({ title, icon: Icon, children }) {
   return (
-    <section className="rounded-[24px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[28px] sm:p-6">
+    <section className="rounded-[22px] border border-slate-200 bg-[#f4f6f8] p-4 shadow-panel sm:rounded-[24px] sm:p-5">
       <div className="flex items-center gap-2">
         <Icon className="h-5 w-5 text-[#0070b1]" />
         <h3 className="text-base font-semibold text-slate-900 sm:text-lg">{title}</h3>
       </div>
-      <div className="mt-5 space-y-5">{children}</div>
+      <div className="mt-4 space-y-4">{children}</div>
     </section>
   );
 }
@@ -75,14 +75,14 @@ export default function PurchaseOrderDetail({
   onBack
 }) {
   return (
-    <div className="h-full overflow-y-auto">
-      <div className="border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur md:sticky md:top-0 md:z-10 sm:px-6 sm:py-5 xl:px-8">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+    <div className="h-full min-h-0 overflow-y-auto">
+      <div className="border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur md:sticky md:top-0 md:z-10 sm:px-6 xl:px-7">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0 flex-1">
             <button
               type="button"
               onClick={onBack}
-              className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-[#0070b1] transition hover:text-sky-800"
+              className="mb-2 inline-flex items-center gap-2 text-sm font-semibold text-[#0070b1] transition hover:text-sky-800"
             >
               <ArrowLeft className="h-4 w-4" />
               Back
@@ -108,24 +108,24 @@ export default function PurchaseOrderDetail({
                 </span>
               ) : null}
             </div>
-            <p className="mt-2 break-words text-sm text-slate-500">
+            <p className="mt-1 break-words text-sm text-slate-500">
               {purchaseOrder.supplierName} | {purchaseOrder.orderDetails.purchaseArea}
             </p>
           </div>
 
-          <div className="w-full rounded-[24px] border border-slate-200 bg-[#f4f6f8] px-4 py-4 text-left sm:px-6 md:w-auto md:min-w-[260px] md:text-right">
+          <div className="w-full rounded-[22px] border border-slate-200 bg-[#f4f6f8] px-4 py-3 text-left sm:px-5 md:w-auto md:min-w-[240px] md:text-right">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400 sm:text-xs sm:tracking-[0.2em]">
               Total Value
             </p>
-            <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl md:text-5xl">
+            <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-slate-950 sm:text-3xl">
               {formatCurrency(purchaseOrder.totalAmount)}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-4 px-4 py-4 sm:space-y-6 sm:px-6 sm:py-6 xl:px-8 xl:py-8">
-        <div className="grid gap-5 xl:grid-cols-3">
+      <div className="space-y-4 px-4 py-4 sm:px-6 xl:px-7">
+        <div className="grid items-start gap-4 xl:grid-cols-3">
           <InfoCard title="Order Details" icon={CalendarDays}>
             <Field label="PO Number" value={purchaseOrder.poNumber} />
             <Field label="Created Date" value={formatDate(purchaseOrder.orderDetails.createdDate)} icon={CalendarDays} />
@@ -152,8 +152,8 @@ export default function PurchaseOrderDetail({
           </InfoCard>
         </div>
 
-        <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-[#f4f6f8] shadow-panel sm:rounded-[28px]">
-          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4 sm:px-6 sm:py-5">
+        <section className="overflow-hidden rounded-[22px] border border-slate-200 bg-[#f4f6f8] shadow-panel sm:rounded-[24px]">
+          <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 sm:px-5">
             <div className="flex items-center gap-2">
               <Building2 className="h-5 w-5 text-[#0070b1]" />
               <h3 className="text-base font-semibold text-slate-900 sm:text-lg">Line Items</h3>
@@ -174,7 +174,7 @@ export default function PurchaseOrderDetail({
                   </span>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div className="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
                   <div className="rounded-2xl bg-slate-50 px-3 py-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Qty</p>
                     <p className="mt-1 font-semibold text-slate-900">{item.quantity.toLocaleString("en-IN")} {item.unit}</p>

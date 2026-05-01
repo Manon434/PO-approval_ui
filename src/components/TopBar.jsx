@@ -17,7 +17,7 @@ export default function TopBar({
   const secureModeActive = securityMode === "secure";
 
   return (
-    <header className="flex min-h-[72px] items-start justify-between gap-3 bg-[#0070b1] px-3 py-3 text-white shadow-lg shadow-sky-900/20 sm:items-center sm:px-4 md:px-5">
+    <header className="flex min-h-[72px] flex-wrap items-start justify-between gap-3 bg-[#0070b1] px-3 py-3 text-white shadow-lg shadow-sky-900/20 sm:flex-nowrap sm:items-center sm:px-4 md:px-5">
       <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
         <button
           type="button"
@@ -54,7 +54,7 @@ export default function TopBar({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2 self-start sm:self-center sm:gap-3 md:gap-6">
+      <div className="flex shrink-0 items-center gap-2 self-start sm:self-center sm:gap-3 md:gap-4">
         {showUpload ? (
           <button
             type="button"
@@ -67,10 +67,10 @@ export default function TopBar({
           </button>
         ) : null}
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="flex items-center gap-2 md:gap-3">
           <button
             type="button"
-            className="rounded-full border border-white/20 bg-white/5 p-2 transition hover:bg-white/15"
+            className="hidden rounded-full border border-white/20 bg-white/5 p-2 transition hover:bg-white/15 md:inline-flex"
             aria-label="Help"
           >
             <CircleHelp className="h-4 w-4" />

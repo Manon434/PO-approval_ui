@@ -249,21 +249,6 @@ function ConfirmationBadge({ syncState }) {
   );
 }
 
-function SummaryTile({ label, value, tone }) {
-  const styles = {
-    neutral: "border-slate-200 bg-white text-slate-900",
-    success: "border-emerald-200 bg-emerald-50 text-emerald-800",
-    warning: "border-amber-200 bg-amber-50 text-amber-800"
-  };
-
-  return (
-    <div className={`rounded-2xl border px-3 py-3 ${styles[tone] ?? styles.neutral}`}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] opacity-70">{label}</p>
-      <p className="mt-1 text-xl font-semibold tracking-tight">{value}</p>
-    </div>
-  );
-}
-
 export default function Sidebar({
   orders,
   activeSection,
@@ -300,17 +285,17 @@ export default function Sidebar({
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(100vw,380px)] max-w-full flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:h-full xl:w-[380px] xl:max-w-[380px] xl:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-[min(100vw,430px)] max-w-full flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:h-full xl:w-[440px] xl:max-w-[440px] xl:translate-x-0 2xl:w-[480px] 2xl:max-w-[480px] ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="border-b border-slate-200 bg-[#f8fafc] px-4 py-5 sm:px-5 sm:py-6">
+        <div className="border-b border-slate-200 bg-[#f8fafc] px-4 py-4 sm:px-5">
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
                 Director Workspace
               </p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 Purchase Orders
               </h1>
             </div>
@@ -324,25 +309,16 @@ export default function Sidebar({
             </button>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-3">
-            <SummaryTile label="Pending" value={pendingCount} tone="warning" />
-            <SummaryTile label="Approved" value={approvedCount} tone="success" />
-            <SummaryTile label="Rejected" value={rejectedCount} tone="neutral" />
-          </div>
-
-          <div className="mt-3 rounded-[24px] border border-emerald-200 bg-emerald-50 px-4 py-4">
+          <div className="mt-4 rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
               Approved Spend
             </p>
-            <p className="mt-2 break-words text-2xl font-semibold tracking-tight text-emerald-900">
+            <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-emerald-900">
               {formatCurrency(approvedTotalAmount)}
-            </p>
-            <p className="mt-1 text-xs leading-5 text-emerald-800/80">
-              Total value of all purchase orders approved by the authority.
             </p>
           </div>
 
-          <div className="mt-5 grid grid-cols-3 gap-2 rounded-[24px] bg-white p-1">
+          <div className="mt-4 grid grid-cols-3 gap-2 rounded-[22px] bg-white p-1">
             {[
               { key: "pending", label: "Pending", count: pendingCount },
               { key: "approved", label: "Approved", count: approvedCount },
@@ -369,7 +345,7 @@ export default function Sidebar({
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="po-scrollbar flex-1 overflow-y-scroll">
           {orders.length === 0 ? (
             <div className="px-4 py-8 text-sm leading-6 text-slate-500 sm:px-5">
               {activeSection === "pending"
@@ -401,20 +377,20 @@ export default function Sidebar({
                     }
                   >
                     <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-3">
+                      <div className="min-w-0 space-y-3">
                         <div className="flex items-center gap-2 text-sm font-semibold text-[#0070b1]">
-                          <FileText className="h-4 w-4" />
+                          <FileText className="h-4 w-4 shrink-0" />
                           {order.poNumber}
                         </div>
 
-                        <div>
-                          <h2 className="text-lg font-semibold text-slate-900 sm:text-xl">
+                        <div className="min-w-0">
+                          <h2 className="break-words text-lg font-semibold text-slate-900 sm:text-xl">
                             {order.supplierName}
                           </h2>
-                          <p className="text-sm text-slate-500">{order.location}</p>
+                          <p className="break-words text-sm text-slate-500">{order.location}</p>
                         </div>
 
-                        <div className="text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
+                        <div className="break-words text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
                           {formatCurrency(order.totalAmount)}
                         </div>
 
@@ -427,7 +403,7 @@ export default function Sidebar({
                         </div>
                       </div>
 
-                      <ChevronRight className="mt-2 h-4 w-4 text-slate-400 transition group-hover:text-slate-600" />
+                      <ChevronRight className="mt-2 h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-slate-600" />
                     </div>
                   </NavLink>
                 );

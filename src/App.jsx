@@ -915,7 +915,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-transparent text-slate-900">
+    <div className="flex h-[100dvh] min-h-screen flex-col overflow-hidden bg-transparent text-slate-900">
       <TopBar
         pendingCount={pendingOrders.length}
         unreadNotifications={unreadNotifications}
@@ -934,7 +934,7 @@ export default function App() {
         securityMode={isDemoMode ? "demo" : "secure"}
       />
 
-      <div className="flex h-[calc(100dvh-72px)] flex-col overflow-hidden xl:flex-row">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden xl:flex-row">
         <Sidebar
           orders={visibleOrders}
           activeSection={activeSection}
@@ -947,7 +947,7 @@ export default function App() {
           onClose={() => setSidebarOpen(false)}
         />
 
-        <main className="min-h-0 min-w-0 flex-1">
+        <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
           <Routes>
             <Route path="/" element={<EmptyState activeSection={activeSection} hasOrders={visibleOrders.length > 0} />} />
             <Route
