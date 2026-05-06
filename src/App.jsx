@@ -925,6 +925,7 @@ export default function App() {
         pendingCount={pendingOrders.length}
         unreadNotifications={unreadNotifications}
         notificationsOpen={notificationsOpen}
+        showMenuButton={location.pathname !== "/"}
         onMenuOpen={() => setSidebarOpen(true)}
         onToggleNotifications={() => setNotificationsOpen((currentValue) => !currentValue)}
         onOpenSettings={() => setSettingsOpen(true)}
@@ -949,10 +950,11 @@ export default function App() {
           rejectedCount={rejectedOrders.length}
           onSectionChange={setActiveSection}
           open={sidebarOpen}
+          inlineOnMobile={location.pathname === "/"}
           onClose={() => setSidebarOpen(false)}
         />
 
-        <main className="min-h-0 min-w-0 flex-1 overflow-hidden">
+        <main className={`min-h-0 min-w-0 flex-1 overflow-hidden ${location.pathname === "/" ? "hidden xl:block" : ""}`}>
           <Routes>
             <Route path="/" element={<EmptyState activeSection={activeSection} hasOrders={visibleOrders.length > 0} />} />
             <Route

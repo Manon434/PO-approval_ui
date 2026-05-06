@@ -259,6 +259,7 @@ export default function Sidebar({
   rejectedCount,
   onSectionChange,
   open,
+  inlineOnMobile = false,
   onClose
 }) {
 
@@ -302,46 +303,56 @@ export default function Sidebar({
     <>
       <div
         className={`fixed inset-0 z-30 bg-slate-950/30 transition xl:hidden ${
-          open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+          inlineOnMobile
+            ? "pointer-events-none opacity-0"
+            : open
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
         }`}
         onClick={onClose}
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[min(100vw,430px)] max-w-full flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:h-full xl:w-[440px] xl:max-w-[440px] xl:translate-x-0 2xl:w-[480px] 2xl:max-w-[480px] ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`${
+          inlineOnMobile
+            ? "relative z-0 flex h-full w-full translate-x-0"
+            : `fixed inset-y-0 left-0 z-40 flex w-[min(100vw,430px)] max-w-full ${
+                open ? "translate-x-0" : "-translate-x-full"
+              }`
+        } flex-col border-r border-slate-200 bg-white/95 backdrop-blur transition duration-300 xl:static xl:z-0 xl:h-full xl:w-[440px] xl:max-w-[440px] xl:translate-x-0 2xl:w-[480px] 2xl:max-w-[480px]`}
       >
-        <div className="border-b border-slate-200 bg-[#f8fafc] px-4 py-4 sm:px-5">
+        <div className="border-b border-slate-200 bg-[#f8fafc] px-3 py-3 sm:px-5 sm:py-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500 sm:text-xs sm:tracking-[0.24em]">
                 Director Workspace
               </p>
-              <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+              <h1 className="mt-1 text-xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                 Purchase Orders
               </h1>
             </div>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-50 xl:hidden"
+              className={`rounded-xl border border-slate-200 bg-white p-2 text-slate-500 transition hover:bg-slate-50 xl:hidden ${
+                inlineOnMobile ? "hidden" : ""
+              }`}
               aria-label="Close purchase order list"
             >
               <X className="h-4 w-4" />
             </button>
           </div>
 
-          <div className="mt-4 rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-3">
+          <div className="mt-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 sm:mt-4 sm:rounded-[22px] sm:px-4 sm:py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
               Approved Spend
             </p>
-            <p className="mt-1 break-words text-2xl font-semibold tracking-tight text-emerald-900">
+            <p className="mt-1 break-words text-xl font-semibold tracking-tight text-emerald-900 sm:text-2xl">
               {formatCurrency(approvedTotalAmount)}
             </p>
           </div>
 
-          <div className="mt-4 grid grid-cols-3 gap-2 rounded-[22px] bg-white p-1">
+          <div className="mt-3 grid grid-cols-3 gap-1 rounded-[18px] bg-white p-1 sm:mt-4 sm:gap-2 sm:rounded-[22px]">
             {[
               { key: "pending", label: "Pending", count: pendingCount },
               { key: "approved", label: "Approved", count: approvedCount },
@@ -351,7 +362,7 @@ export default function Sidebar({
                 key={section.key}
                 type="button"
                 onClick={() => onSectionChange(section.key)}
-                className={`rounded-[20px] px-4 py-3 text-left transition ${
+                className={`rounded-[16px] px-2 py-2 text-left transition sm:rounded-[20px] sm:px-4 sm:py-3 ${
                   activeSection === section.key
                     ? "bg-[#0070b1] text-white shadow-lg shadow-sky-200"
                     : "text-slate-600 hover:bg-slate-50"
@@ -360,14 +371,14 @@ export default function Sidebar({
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] opacity-70 sm:text-xs sm:tracking-[0.16em]">
                   {section.label}
                 </p>
-                <p className="mt-1 text-lg font-semibold tracking-tight sm:text-xl">
+                <p className="mt-1 text-base font-semibold tracking-tight sm:text-xl">
                   {section.count}
                 </p>
               </button>
             ))}
           </div>
 
-          <div className="mt-4">
+          <div className="mt-3 sm:mt-4">
             <label className="relative block">
               <span className="sr-only">Search purchase orders</span>
               <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />

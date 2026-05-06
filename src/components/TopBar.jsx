@@ -4,6 +4,7 @@ export default function TopBar({
   pendingCount,
   unreadNotifications,
   notificationsOpen,
+  showMenuButton = true,
   onMenuOpen,
   onToggleNotifications,
   onOpenSettings,
@@ -22,19 +23,21 @@ export default function TopBar({
         <button
           type="button"
           onClick={onMenuOpen}
-          className="rounded-xl border border-white/20 bg-white/10 p-2 transition hover:bg-white/15 xl:hidden"
+          className={`rounded-xl border border-white/20 bg-white/10 p-2 transition hover:bg-white/15 xl:hidden ${
+            showMenuButton ? "" : "hidden"
+          }`}
           aria-label="Open purchase order list"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 sm:h-10 sm:w-10">
+        <div className="hidden h-9 w-9 items-center justify-center rounded-xl bg-white/10 sm:flex sm:h-10 sm:w-10">
           <ShoppingCart className="h-5 w-5" />
         </div>
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <span className="text-xl font-semibold tracking-tight sm:text-2xl">POP</span>
             <span className="hidden h-6 w-px bg-white/30 sm:block" />
-            <span className="text-sm font-medium leading-5 sm:text-lg">Purchase Order Approval</span>
+            <span className="hidden text-sm font-medium leading-5 sm:inline sm:text-lg">Purchase Order Approval</span>
             <span
               className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-semibold ${
                 secureModeActive
@@ -103,7 +106,7 @@ export default function TopBar({
           ) : null}
         </button>
 
-        <div className="flex items-center gap-2 rounded-2xl bg-white/10 px-2 py-2 sm:gap-3 sm:px-3">
+        <div className="hidden items-center gap-2 rounded-2xl bg-white/10 px-2 py-2 sm:flex sm:gap-3 sm:px-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/15 sm:h-10 sm:w-10">
             <UserRound className="h-5 w-5" />
           </div>
