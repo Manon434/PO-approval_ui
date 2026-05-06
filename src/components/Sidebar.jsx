@@ -202,8 +202,9 @@
 //   );
 // }
 
+import { useMemo, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { CheckCircle2, ChevronRight, Clock3, FileText, X, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronRight, Clock3, FileText, Search, X, XCircle } from "lucide-react";
 import { formatCurrency, formatDate } from "../utils/formatters";
 
 const monthFormatter = new Intl.DateTimeFormat("en-IN", {
@@ -261,9 +262,31 @@ export default function Sidebar({
   onClose
 }) {
 
-  // ✅ Optimized grouping (no repeated .find)
-  const groupedOrders = Object.values(
-    orders.reduce((acc, order) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const filteredOrders = useMemo(() => {
+    if (!normalizedSearch) {
+      return orders;
+    }
+
+    return orders.filter((order) => {
+      const searchableText = [
+        order.poNumber,
+        order.supplierName,
+        order.location,
+        formatCurrency(order.totalAmount),
+        ...(order.lineItems ?? []).flatMap((item) => [item.material, item.description])
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      return searchableText.includes(normalizedSearch);
+    });
+  }, [normalizedSearch, orders]);
+
+  const groupedOrders = useMemo(() => Object.values(
+    filteredOrders.reduce((acc, order) => {
       const label = monthFormatter.format(new Date(order.orderDetails.createdDate));
 
       if (!acc[label]) {
@@ -273,7 +296,7 @@ export default function Sidebar({
       acc[label].orders.push(order);
       return acc;
     }, {})
-  );
+  ), [filteredOrders]);
 
   return (
     <>
@@ -343,12 +366,28 @@ export default function Sidebar({
               </button>
             ))}
           </div>
+
+          <div className="mt-4">
+            <label className="relative block">
+              <span className="sr-only">Search purchase orders</span>
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search PO, material, supplier..."
+                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0070b1] focus:ring-4 focus:ring-sky-100"
+              />
+            </label>
+          </div>
         </div>
 
         <div className="po-scrollbar flex-1 overflow-y-scroll">
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="px-4 py-8 text-sm leading-6 text-slate-500 sm:px-5">
-              {activeSection === "pending"
+              {searchQuery
+                ? "No purchase orders match your search."
+                : activeSection === "pending"
                 ? "There are no pending purchase orders to review."
                 : activeSection === "approved"
                 ? "There are no approved purchase orders yet."
@@ -365,6 +404,7 @@ export default function Sidebar({
 
                 {group.orders.map((order) => {
                   const orderId = order.id ?? order.poNumber;
+                  const primaryLineItem = order.lineItems?.[0];
                   return (
                   <NavLink
                     key={orderId}
@@ -389,6 +429,17 @@ export default function Sidebar({
                           </h2>
                           <p className="break-words text-sm text-slate-500">{order.location}</p>
                         </div>
+
+                        {primaryLineItem ? (
+                          <div className="rounded-2xl bg-slate-50 px-3 py-2">
+                            <p className="line-clamp-2 break-words text-sm font-medium leading-5 text-slate-700">
+                              {primaryLineItem.description}
+                            </p>
+                            <p className="mt-1 break-all text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                              {primaryLineItem.material}
+                            </p>
+                          </div>
+                        ) : null}
 
                         <div className="break-words text-[26px] font-semibold leading-none tracking-tight text-slate-950 sm:text-[30px]">
                           {formatCurrency(order.totalAmount)}

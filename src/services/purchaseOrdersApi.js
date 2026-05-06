@@ -73,6 +73,12 @@ export function fetchPurchaseOrdersFromApi() {
   return requestJson("/api/po");
 }
 
+export function syncPurchaseOrdersFromSapInApi() {
+  return requestJson("/api/admin/sync", {
+    method: "POST"
+  });
+}
+
 export function fetchSystemStatusFromApi() {
   return requestJson("/api/health");
 }

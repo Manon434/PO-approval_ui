@@ -24,6 +24,7 @@ import {
   logoutFromApi,
   rejectPurchaseOrderInApi,
   setAccessToken,
+  syncPurchaseOrdersFromSapInApi,
   updateDemoAccessInApi
 } from "./services/purchaseOrdersApi";
 
@@ -685,6 +686,10 @@ export default function App() {
 
   async function handleRefreshNow() {
     try {
+      if (authStatus === "authenticated" && !isDemoMode) {
+        await syncPurchaseOrdersFromSapInApi();
+      }
+
       const apiOrders = await fetchPurchaseOrdersFromApi();
       const hydratedOrders = hydratePurchaseOrders(apiOrders);
       setPurchaseOrders(hydratedOrders);
