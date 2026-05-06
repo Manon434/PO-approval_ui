@@ -343,7 +343,23 @@ export default function Sidebar({
             </button>
           </div>
 
-          <div className="mt-3 rounded-[18px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 sm:mt-4 sm:rounded-[22px] sm:px-4 sm:py-3">
+          <div className="mt-3 sm:mt-4">
+            <label className="relative block">
+              <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-[#0070b1]">
+                Find Purchase Order
+              </span>
+              <Search className="pointer-events-none absolute left-4 top-[calc(50%+12px)] h-4 w-4 -translate-y-1/2 text-[#0070b1]" />
+              <input
+                type="search"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                placeholder="Search PO, material, supplier..."
+                className="w-full rounded-2xl border-2 border-[#0070b1]/25 bg-white py-3.5 pl-11 pr-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#0070b1] focus:ring-4 focus:ring-sky-100"
+              />
+            </label>
+          </div>
+
+          <div className="mt-3 hidden rounded-[18px] border border-emerald-200 bg-emerald-50 px-3 py-2.5 sm:mt-4 sm:block sm:rounded-[22px] sm:px-4 sm:py-3">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700/80">
               Approved Spend
             </p>
@@ -378,19 +394,6 @@ export default function Sidebar({
             ))}
           </div>
 
-          <div className="mt-3 sm:mt-4">
-            <label className="relative block">
-              <span className="sr-only">Search purchase orders</span>
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => setSearchQuery(event.target.value)}
-                placeholder="Search PO, material, supplier..."
-                className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-[#0070b1] focus:ring-4 focus:ring-sky-100"
-              />
-            </label>
-          </div>
         </div>
 
         <div className="po-scrollbar flex-1 overflow-y-scroll">
@@ -442,11 +445,14 @@ export default function Sidebar({
                         </div>
 
                         {primaryLineItem ? (
-                          <div className="rounded-2xl bg-slate-50 px-3 py-2">
-                            <p className="line-clamp-2 break-words text-sm font-medium leading-5 text-slate-700">
+                          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-3 py-2.5">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#0070b1]">
+                              Item Description
+                            </p>
+                            <p className="mt-1 line-clamp-2 break-words text-sm font-semibold leading-5 text-slate-800">
                               {primaryLineItem.description}
                             </p>
-                            <p className="mt-1 break-all text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+                            <p className="mt-1 break-all text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">
                               {primaryLineItem.material}
                             </p>
                           </div>
