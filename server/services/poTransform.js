@@ -163,6 +163,29 @@ function buildAddress(row) {
   return addressParts.length > 0 ? addressParts.join(", ") : "Address not provided by SAP";
 }
 
+function buildPlantAddress(row) {
+  const addressParts = [
+    normalizeText(row.PLANTNAME),
+    normalizeText(row.PLANTADDRESS),
+    normalizeText(row.PLANTPOBOX),
+    normalizeText(row.PLANTCITY),
+    normalizeText(row.PLANTPCODE)
+  ].filter(Boolean);
+
+  return addressParts.length > 0 ? addressParts.join(", ") : buildAddress(row);
+}
+
+function buildPlantLabel(row) {
+  const plantName = normalizeText(row.PLANTNAME);
+  const plantCode = normalizeText(row.WERKS);
+
+  if (plantName && plantCode) {
+    return `${plantName} (${plantCode})`;
+  }
+
+  return plantName || plantCode || "SAP Plant";
+}
+
 function buildApprovalHistory(order, sourceLabel) {
   const history = [
     {
@@ -260,9 +283,9 @@ function transformRowsToPurchaseOrders(rows, { sapClient, fallbackFrgco, sourceL
           incoterms: normalizeText([row.INCO1, row.INCO2].filter(Boolean).join(" - "), "Not provided by SAP")
         },
         deliveryInfo: {
-          plant: normalizeText(row.WERKS, "SAP Plant"),
+          plant: buildPlantLabel(row),
           deliveryDate,
-          deliveryAddress: buildAddress(row)
+          deliveryAddress: buildPlantAddress(row)
         },
         lineItems: [],
         approvalHistory: [],
