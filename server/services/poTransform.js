@@ -43,6 +43,10 @@ function normalizeText(value, fallback = "") {
     .trim();
 }
 
+function normalizeVendorName(value) {
+  return normalizeText(value).replace(/^\d+\s+/, "");
+}
+
 function parseSapDate(value) {
   if (!value) {
     return null;
@@ -122,6 +126,7 @@ function deriveDeliveryDate(row, createdDate) {
 
 function deriveSupplierName(row) {
   return (
+    normalizeVendorName(row.VENDOR_NAME) ||
     normalizeText(row.NAME1) ||
     normalizeText(row.LIFNR) ||
     normalizeText(row.TXZ01) ||
@@ -130,7 +135,7 @@ function deriveSupplierName(row) {
 }
 
 function deriveLocation(row, fallbackFrgco) {
-  const locationParts = [normalizeText(row.CITY1), normalizeText(row.REGIO)].filter(Boolean);
+  const locationParts = [normalizeText(row.ORT01 || row.CITY1), normalizeText(row.REGIO)].filter(Boolean);
 
   if (locationParts.length > 0) {
     return locationParts.join(", ");
@@ -145,10 +150,14 @@ function deriveLocation(row, fallbackFrgco) {
 
 function buildAddress(row) {
   const addressParts = [
+    normalizeText(row.ADDRESS1),
+    normalizeText(row.ADDRESS2),
+    normalizeText(row.ADDRESS3),
     normalizeText(row.STRAS),
     normalizeText(row.ORT01),
     normalizeText(row.CITY1),
-    normalizeText(row.REGIO)
+    normalizeText(row.REGIO),
+    normalizeText(row.PSTLZ)
   ].filter(Boolean);
 
   return addressParts.length > 0 ? addressParts.join(", ") : "Address not provided by SAP";
@@ -238,7 +247,7 @@ function transformRowsToPurchaseOrders(rows, { sapClient, fallbackFrgco, sourceL
         statusSource: "sap",
         vendorInfo: {
           vendorCode: normalizeText(row.LIFNR, `SAP-${poNumber.slice(-4)}`),
-          gstNumber: normalizeText(row.STCD3 || row.STCD1, "Not provided by SAP"),
+          gstNumber: normalizeText(row.GSTIN || row.STCD3 || row.STCD1, "Not provided by SAP"),
           address: buildAddress(row),
           contact: normalizeText(row.TELF1, "Not provided by SAP"),
           email: normalizeText(row.SMTP_ADDR, `sap.vendor.${poNumber.slice(-4)}@example.com`)
