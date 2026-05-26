@@ -228,6 +228,10 @@ export default function App() {
   const [backendDisconnected, setBackendDisconnected] = useState(false);
   const [systemStatus, setSystemStatus] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [installPromptEvent, setInstallPromptEvent] = useState(null);
+  const [isStandaloneApp, setIsStandaloneApp] = useState(() => {
+    return window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;
+  });
   const [notifications, setNotifications] = useState(() => buildNotificationsFromOrders(mockPurchaseOrders));
   const [settings, setSettings] = useState(() => {
     try {
@@ -429,6 +433,33 @@ export default function App() {
     },
     []
   );
+
+  useEffect(() => {
+    function handleBeforeInstallPrompt(event) {
+      event.preventDefault();
+      setInstallPromptEvent(event);
+    }
+
+    function handleAppInstalled() {
+      setInstallPromptEvent(null);
+      setIsStandaloneApp(true);
+      showToast("success", "App installed", "POP Approval is now available from your device home screen.");
+    }
+
+    function handlePwaUpdateReady() {
+      showToast("warning", "Update ready", "Close and reopen POP Approval to load the latest app version.");
+    }
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+    window.addEventListener("pop:pwa-update-ready", handlePwaUpdateReady);
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+      window.removeEventListener("pop:pwa-update-ready", handlePwaUpdateReady);
+    };
+  }, []);
 
   useEffect(() => {
     if (toasts.length === 0) {
@@ -761,6 +792,20 @@ export default function App() {
     }
   }
 
+  async function handleInstallApp() {
+    if (!installPromptEvent) {
+      showToast("warning", "Install not available yet", "Use your browser menu and choose Install app or Add to home screen.");
+      return;
+    }
+
+    installPromptEvent.prompt();
+    const choice = await installPromptEvent.userChoice;
+
+    if (choice.outcome === "accepted") {
+      setInstallPromptEvent(null);
+    }
+  }
+
   function handleApproveRequest(poId) {
     setApprovingPoId(poId);
   }
@@ -1003,6 +1048,8 @@ export default function App() {
       <SettingsPanel
         open={settingsOpen}
         settings={settings}
+        canInstallApp={Boolean(installPromptEvent)}
+        isStandaloneApp={isStandaloneApp}
         onChange={async (nextSettings, options = {}) => {
           setSettings(nextSettings);
           try {
@@ -1030,6 +1077,7 @@ export default function App() {
             }
           }
         }}
+        onInstallApp={handleInstallApp}
         onRefreshNow={handleRefreshNow}
         onClose={() => setSettingsOpen(false)}
       />

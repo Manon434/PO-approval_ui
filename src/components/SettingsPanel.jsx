@@ -1,4 +1,4 @@
-import { Settings, X } from "lucide-react";
+import { CheckCircle2, Download, Settings, X } from "lucide-react";
 
 const intervalOptions = [
   { value: 5, label: "Every 5 minutes" },
@@ -28,7 +28,16 @@ function Toggle({ label, description, checked, onChange }) {
   );
 }
 
-export default function SettingsPanel({ open, settings, onChange, onClose, onRefreshNow }) {
+export default function SettingsPanel({
+  open,
+  settings,
+  canInstallApp,
+  isStandaloneApp,
+  onChange,
+  onClose,
+  onInstallApp,
+  onRefreshNow
+}) {
   if (!open) {
     return null;
   }
@@ -60,6 +69,38 @@ export default function SettingsPanel({ open, settings, onChange, onClose, onRef
         </div>
 
         <div className="space-y-4 p-4 sm:p-5">
+          <div className="rounded-2xl border border-sky-100 bg-sky-50 px-4 py-4">
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-[#0070b1] p-2 text-white">
+                {isStandaloneApp ? <CheckCircle2 className="h-5 w-5" /> : <Download className="h-5 w-5" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-900">
+                  {isStandaloneApp ? "Installed on this device" : "Install POP Approval"}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-slate-600">
+                  {isStandaloneApp
+                    ? "The app is running in enterprise mobile app mode."
+                    : "Add this approval workspace to your phone home screen for fast secure access."}
+                </p>
+              </div>
+            </div>
+            {!isStandaloneApp ? (
+              <button
+                type="button"
+                onClick={onInstallApp}
+                disabled={!canInstallApp}
+                className={`mt-4 w-full rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                  canInstallApp
+                    ? "bg-[#0070b1] text-white hover:bg-sky-800"
+                    : "cursor-not-allowed border border-slate-200 bg-white text-slate-400"
+                }`}
+              >
+                {canInstallApp ? "Install app" : "Install from browser menu"}
+              </button>
+            ) : null}
+          </div>
+
           <Toggle
             label="Auto-refresh from backend"
             description="Pull live SAP-backed updates automatically to keep the approval queue current."

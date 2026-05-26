@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="POP Approval">
+  <defs>
+    <linearGradient id="bg" x1="82" y1="34" x2="430" y2="478" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0098d8"/>
+      <stop offset="1" stop-color="#005f99"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <path d="M142 154h228c18 0 32 14 32 32v190c0 18-14 32-32 32H142c-18 0-32-14-32-32V186c0-18 14-32 32-32Z" fill="#fff" opacity=".96"/>
+  <path d="M166 214h180M166 264h128M166 314h84" stroke="#0070b1" stroke-width="24" stroke-linecap="round"/>
+  <path d="m308 322 38 38 72-92" fill="none" stroke="#0f9f6e" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="256" y="116" text-anchor="middle" font-family="Aptos, Segoe UI, sans-serif" font-size="58" font-weight="800" fill="#fff">POP</text>
+</svg>
