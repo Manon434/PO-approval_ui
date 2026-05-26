@@ -128,7 +128,10 @@ function createIcon(size, maskable = false) {
 }
 
 await mkdir(outputDir, { recursive: true });
+await writeFile(new URL("icon-144.png", outputDir), createIcon(144));
 await writeFile(new URL("icon-192.png", outputDir), createIcon(192));
+await writeFile(new URL("icon-256.png", outputDir), createIcon(256));
+await writeFile(new URL("icon-384.png", outputDir), createIcon(384));
 await writeFile(new URL("icon-512.png", outputDir), createIcon(512));
 await writeFile(new URL("maskable-512.png", outputDir), createIcon(512, true));
 await writeFile(new URL("apple-touch-icon.png", outputDir), createIcon(180));
