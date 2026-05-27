@@ -134,4 +134,7 @@ await writeFile(new URL("icon-256.png", outputDir), createIcon(256));
 await writeFile(new URL("icon-384.png", outputDir), createIcon(384));
 await writeFile(new URL("icon-512.png", outputDir), createIcon(512));
 await writeFile(new URL("maskable-512.png", outputDir), createIcon(512, true));
+await writeFile(new URL("apple-touch-icon-120.png", outputDir), createIcon(120));
+await writeFile(new URL("apple-touch-icon-152.png", outputDir), createIcon(152));
+await writeFile(new URL("apple-touch-icon-167.png", outputDir), createIcon(167));
 await writeFile(new URL("apple-touch-icon.png", outputDir), createIcon(180));

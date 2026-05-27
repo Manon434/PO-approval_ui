@@ -1,4 +1,4 @@
-const CACHE_VERSION = "pop-approval-v2";
+const CACHE_VERSION = "pop-approval-v3";
 const APP_SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const OFFLINE_URL = "/offline.html";
 const PRECACHE_URLS = ["/", OFFLINE_URL, "/manifest.webmanifest", "/icons/icon.svg"];

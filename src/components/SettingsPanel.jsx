@@ -33,6 +33,7 @@ export default function SettingsPanel({
   settings,
   canInstallApp,
   isStandaloneApp,
+  isIosDevice,
   onChange,
   onClose,
   onInstallApp,
@@ -81,22 +82,31 @@ export default function SettingsPanel({
                 <p className="mt-1 text-xs leading-5 text-slate-600">
                   {isStandaloneApp
                     ? "The app is running in enterprise mobile app mode."
-                    : "Add this approval workspace to your phone home screen for fast secure access."}
+                    : isIosDevice
+                      ? "On iPhone, open this site in Safari, tap Share, then choose Add to Home Screen."
+                      : "Add this approval workspace to your phone home screen for fast secure access."}
                 </p>
               </div>
             </div>
+            {isIosDevice && !isStandaloneApp ? (
+              <ol className="mt-4 space-y-2 rounded-xl border border-sky-100 bg-white px-4 py-3 text-xs font-medium leading-5 text-slate-600">
+                <li>1. Open this app in Safari.</li>
+                <li>2. Tap the Share button.</li>
+                <li>3. Select Add to Home Screen.</li>
+              </ol>
+            ) : null}
             {!isStandaloneApp ? (
               <button
                 type="button"
                 onClick={onInstallApp}
-                disabled={!canInstallApp}
+                disabled={!canInstallApp || isIosDevice}
                 className={`mt-4 w-full rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                  canInstallApp
+                  canInstallApp && !isIosDevice
                     ? "bg-[#0070b1] text-white hover:bg-sky-800"
                     : "cursor-not-allowed border border-slate-200 bg-white text-slate-400"
                 }`}
               >
-                {canInstallApp ? "Install app" : "Install from browser menu"}
+                {isIosDevice ? "Use Safari Share menu" : canInstallApp ? "Install app" : "Install from browser menu"}
               </button>
             ) : null}
           </div>

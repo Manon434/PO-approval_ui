@@ -232,6 +232,10 @@ export default function App() {
   const [isStandaloneApp, setIsStandaloneApp] = useState(() => {
     return window.matchMedia?.("(display-mode: standalone)")?.matches || window.navigator.standalone === true;
   });
+  const [isIosDevice] = useState(() => {
+    const userAgent = window.navigator.userAgent || "";
+    return /iPad|iPhone|iPod/.test(userAgent) || (userAgent.includes("Macintosh") && navigator.maxTouchPoints > 1);
+  });
   const [notifications, setNotifications] = useState(() => buildNotificationsFromOrders(mockPurchaseOrders));
   const [settings, setSettings] = useState(() => {
     try {
@@ -1050,6 +1054,7 @@ export default function App() {
         settings={settings}
         canInstallApp={Boolean(installPromptEvent)}
         isStandaloneApp={isStandaloneApp}
+        isIosDevice={isIosDevice}
         onChange={async (nextSettings, options = {}) => {
           setSettings(nextSettings);
           try {
